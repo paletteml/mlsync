@@ -1,0 +1,44 @@
+info:
+  # See https://www.mlflow.org/docs/latest/rest-api.html#mlflowruninfo
+  elements:
+    user_id: User
+    status: status
+    start_time: Start Time
+    end_time: End Time
+  unmatched_policy: ignore
+  notfound_policy: error
+
+metrics:
+  # Add all the metrics
+  elements:
+    train_loss: Train Loss
+    accuracy: Accuracy
+    final_accuracy: Final Accuracy
+    test_loss: Test Loss
+  unmatched_policy: add
+  notfound_policy: ignore
+
+params:
+  # Add the parameters
+  elements:
+    batch_size: Batch Size
+    epochs: Epochs
+    lr: Learning Rate
+    gamma: Gamma
+  unmatched_policy: add
+  notfound_policy: ignore
+
+tags:
+  # Add the tags
+  elements:
+    mlflow.runName: Name
+    mlflow.note.content: Description
+  unmatched_policy: ignore
+  notfound_policy: ignore
+
+# Order in which the table will be populated
+order:
+  - Name
+  - User
+  - Start Time
+  - End Time

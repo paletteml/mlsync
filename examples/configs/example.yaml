@@ -1,0 +1,14 @@
+# MLFlow related configurations
+mlflow:
+  # Path to the report format. See an example in formats/mlflow.yaml
+  report_format: null
+  # URI for mlflow (visible when you enter `mlflow ui`)
+  uri: http://127.0.0.1:5000/
+
+# Notion related configurations
+notion:
+  # Page ID/URL. When you allow integration and share page, this is the link you copy
+  page_id: null
+
+# How often should the updates be (in secs)
+refresh_rate: 10

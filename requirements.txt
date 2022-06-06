@@ -1,0 +1,5 @@
+inquirer==2.9.2
+notion_client==1.0.0
+python-dotenv==0.20.0
+PyYAML==6.0
+requests==2.22.0
