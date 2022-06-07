@@ -82,6 +82,9 @@ class NotionSync:
         if command == "new":
             # Create new tables for all the experiments
             for experiment_name, experiment in notion_report.items():
+                # Check if the experiment is empty
+                if not experiment["properties"]:
+                    continue
                 database_id = self.notion_api.createDatabase(
                     experiment_name, experiment["properties"], self.root_page_id
                 )
@@ -108,6 +111,9 @@ class NotionSync:
                 assert (
                     experiment_name in notion_report
                 ), f"{experiment_name} is already in notion_report"
+                # Check if the experiment is empty
+                if not notion_report[experiment_name]["properties"]:
+                    continue
                 # Create new table
                 database_id = self.notion_api.createDatabase(
                     experiment_name, notion_report[experiment_name]["properties"], self.root_page_id

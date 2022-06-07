@@ -71,8 +71,6 @@ class NotionFormatter:
             # 1. First create the properties of the database
             properties = self.properties if (properties is None) else properties
             # Update the properties with the metrics
-            # TODO: if the runs deviate from the previous ones, we may have to update the properties
-            key = list(experiment["runs"].keys())[0]
             experiment_property = {}
             # Go through all the runs to create a superset of the properties
             for run_id, run in experiment["runs"].items():
@@ -91,6 +89,7 @@ class NotionFormatter:
                                     type(value), key
                                 )
                             )
+
             # Add the properties to the experiment report
             experiment_report["properties"] = experiment_property
 

@@ -172,7 +172,7 @@ if __name__ == "__main__":
     parser.add_argument("--refresh_rate", type=int, help="Refresh rate in minutes")
     parser.add_argument(
         "-f",
-        "--format",
+        "--report_format",
         type=str,
         help="Path to report format yaml file",
     )

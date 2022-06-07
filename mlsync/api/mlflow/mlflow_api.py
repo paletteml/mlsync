@@ -47,7 +47,7 @@ class MLFlowAPI:
             },
         )
         result_dict = r.json()
-        return result_dict["runs"]
+        return result_dict["runs"] if('runs' in result_dict) else []
 
     def getRunMetric(self, run_id, metric_key):
         """
@@ -59,7 +59,7 @@ class MLFlowAPI:
         url = f"{self.mlflowRoot}/2.0/mlflow/metrics/get-history"
         r = requests.get(url, json={"run_id": run_id, "metric_key": metric_key})
         result_dict = r.json()
-        return result_dict["metrics"]
+        return result_dict["metrics"] if('metrics' in result_dict) else []
 
 
 if __name__ == "__main__":
