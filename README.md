@@ -5,12 +5,7 @@ MLSync is a productivity tool that syncs your ML data with productivity tools yo
 ## Installation
 
 ```sh
-pip install -r requirements.txt
-```
-
-```
-# install the package
-pip install -e .
+pip install mlsync
 ```
 
 ## Example: MLFlow -> Notion
@@ -60,7 +55,7 @@ Let us now link Notion to our MLFlow environment.
 You are now all setup! Now let us sync your MLFlow runs to Notion.
 
 ```sh
-python sync.py --config config.yaml --format format.yaml
+mlsync --config config.yaml --report_format format.yaml
 ```
 
 ### Advanced
