@@ -1,9 +1,14 @@
 from setuptools import setup, find_packages
 
+with open('README.md') as f:
+    long_description = f.read()
+
 setup(
     name='mlsync',
-    version='0.1.0',
+    version='0.1.2',
     description='Sync your machine learning data to your favorite productivity tools',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     url='https://github.com/paletteml/mlsync',
     author='Andre Terron and Kartik Hegde',
     author_email='support@paletteml.com',

@@ -151,4 +151,3 @@ MNIST/
 
 # Local
 *.env
-config.yaml
