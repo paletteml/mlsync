@@ -24,7 +24,7 @@ class MLFlowSync:
 
     def get_report_format(self, report_format_file):
         """Get the report format from the report_format_file
-        
+
         Args:
             report_format_file (str): The YAML report format file path. See example in examples/formats/
         """
@@ -44,9 +44,7 @@ class MLFlowSync:
         # Get all the experiments
         experiments = self.mlflow_api.getExperiments()
         # Create the report according to the experiment_report_format
-        report = self.generate_experiment(
-            experiments, self.experiment_report_format
-        )
+        report = self.generate_experiment(experiments, self.experiment_report_format)
 
         # Step 2: Get all the runs for each experiment
         for experiment_name, experiment in report.items():
@@ -64,22 +62,24 @@ class MLFlowSync:
                 # Metrics
                 for metric in report_run["metrics"]:
                     # Get the detailed data for each metric
-                    metric_data = self.mlflow_api.getRunMetric(
-                        run_id, metric["key"]
-                    )
+                    metric_data = self.mlflow_api.getRunMetric(run_id, metric["key"])
                     # Post process the metric data
                     metric_data = self.generate_run_metrics(metric_data)
                     # Store the metric data in the report
                     report_run["metric_detailed"][metric["key"]] = metric_data
+
             # Add to reports
             experiment["runs"] = reports_run
 
         # Step 4: Generate the report
+        # Remove all empty experiments from the report (experiment with no runs)
+        report = {k: v for k, v in report.items() if v["runs"]}
+
         return report
 
     def generate_experiment(self, report_experiment, experiment_report_format):
         """Retain the experiment information
-        
+
         Args:
             report_experiment (dict): The experiment information from MLFlow
             experiment_report_format (dict): The experiment report format
@@ -90,9 +90,7 @@ class MLFlowSync:
         for experiment in report_experiment:
             # for all the keys in the experiment report format, get the value from the experiment
             experiment_key = experiment_report_format["key"]
-            assert (
-                experiment_key in experiment
-            ), "The key {} is not in the experiment {}".format(
+            assert experiment_key in experiment, "The key {} is not in the experiment {}".format(
                 experiment_key, experiment
             )
             experiment_name = experiment[experiment_key]
@@ -110,7 +108,7 @@ class MLFlowSync:
 
     def generate_run(self, reports_run, run_report_format):
         """Generate the run report
-        
+
         Args:
             reports_run (list): The list of run information from MLFlow
             run_report_format (dict): The run report format
@@ -121,9 +119,7 @@ class MLFlowSync:
         for run_idx, report_run in enumerate(reports_run):
             # Key name for the run
             run_key = run_report_format["key"]
-            assert (
-                run_key in report_run["info"]
-            ), "The key {} is not in the run {}".format(run_key, report_run)
+            assert run_key in report_run["info"], "The key {} is not in the run {}".format(run_key, report_run)
             run_id = report_run["info"][run_key]
             # Create an entry
             report[run_id] = {}
@@ -182,7 +178,7 @@ class MLFlowSync:
 
     def generate_run_metrics(self, report_metric):
         """Generate the run metrics
-        
+
         Args:
             report_metric (dict): The metric information from MLFlow
         """
@@ -226,9 +222,7 @@ class MLFlowSync:
             for experiment_name in report_old:
                 # If the experiment is not in the new report, then it is deleted
                 if experiment_name not in report_new:
-                    diff_experiment_report["deleted"][
-                        experiment_name
-                    ] = experiment_name
+                    diff_experiment_report["deleted"][experiment_name] = experiment_name
                 # If the experiment is in the new report, then we will compare the runs
                 else:
                     experiment_new = report_new[experiment_name]
@@ -240,7 +234,7 @@ class MLFlowSync:
                         diff_run_report = {
                             "new": [],
                             "deleted": [],
-                            "updated": [],
+                            "updated": [], # Only the values changed
                         }
                         # Compare the runs between the old and new report
                         for run_id in experiment_old["runs"]:
@@ -248,10 +242,8 @@ class MLFlowSync:
                             if run_id not in experiment_new["runs"]:
                                 diff_run_report["deleted"].append(run_id)
                             # Status of the run must have changed
-                            elif (
-                                experiment_new["runs"][run_id]
-                                != experiment_old["runs"][run_id]
-                            ):
+                            elif experiment_new["runs"][run_id] != experiment_old["runs"][run_id]:
+                                # Updated rows
                                 diff_run_report["updated"].append(run_id)
                         # Compare the runs between the new and old report
                         for run_id in experiment_new["runs"]:
@@ -261,16 +253,12 @@ class MLFlowSync:
                                 # Also check if the run has new metrics #TODO
                             # Other case is captured above
                         # Add to updated experiments
-                        diff_experiment_report["updated"][
-                            experiment_name
-                        ] = diff_run_report
+                        diff_experiment_report["updated"][experiment_name] = diff_run_report
             # Compare the new and the old experiments
             for experiment_name in report_new:
                 # If the experiment is not in the old report, then it is added
                 if experiment_name not in report_old:
-                    diff_experiment_report["new"][
-                        experiment_name
-                    ] = experiment_name
+                    diff_experiment_report["new"][experiment_name] = experiment_name
 
         return diff_experiment_report
 
@@ -279,9 +267,7 @@ if __name__ == "__main__":
     import os
 
     mlflowRoot = "http://127.0.0.1:5000/api"
-    report_format = os.path.join(
-        os.path.dirname(__file__), "../../../formats/mlflow.yaml"
-    )
+    report_format = os.path.join(os.path.dirname(__file__), "../../../formats/mlflow.yaml")
     generate = MLFlowSync(mlflowRoot, report_format=report_format)
     report = generate.generate()
     print(report)

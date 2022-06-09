@@ -2,6 +2,7 @@ import sys
 from mlsync.api.notion.notion_api import NotionAPI
 from mlsync.api.notion.notion_formatter import NotionFormatter
 
+
 class NotionSync:
     def __init__(self, notion_api: NotionAPI, root_page_id: str):
         """Initialize the NotionSync object
@@ -13,7 +14,8 @@ class NotionSync:
         self.root_page_id = root_page_id
         self.notion_api = notion_api
         assert self.notion_api.testPageAccess(
-            self.root_page_id), "Could not access the Notion page, please ensure you shared the page with the Notion integration."
+            self.root_page_id
+        ), "Could not access the Notion page, please ensure you shared the page with the Notion integration."
         self.notion_formatter = NotionFormatter()
         self.notion_state = {}
 
@@ -52,8 +54,7 @@ class NotionSync:
                     "runs": {},
                 }
                 # update notion state
-                notion_state[database_name] = {
-                    "database_id": database_id, "pages": {}}
+                notion_state[database_name] = {"database_id": database_id, "pages": {}}
                 # Get all the pages in the database
                 pages = self.notion_api.readDatabase(database_id)
                 pages = pages["results"] if (pages) else []
@@ -63,13 +64,9 @@ class NotionSync:
                     page_name = read_property(page["properties"]["Name"])
                     page_properties = {}
                     for page_property_name, page_property in page["properties"].items():
-                        page_properties[page_property_name] = read_property(
-                            page_property
-                        )
+                        page_properties[page_property_name] = read_property(page_property)
                     # update notion state
-                    notion_state[database_name]["pages"][page_name] = {
-                        "page_id": page_id
-                    }
+                    notion_state[database_name]["pages"][page_name] = {"page_id": page_id}
 
                     experiment_report["runs"][page_name] = page_properties
 
@@ -83,7 +80,7 @@ class NotionSync:
 
     def mlflow_to_notion(self, mlflow_report, command="new", diff_report=None):
         """Takes MLFlow report and syncs it with Notion.
-        
+
         Args:
             mlflow_report (dict): The MLFlow report
             command (str): The command to execute, It can be "new", "create", "update" or "delete"
@@ -107,22 +104,15 @@ class NotionSync:
                 }
                 # Create rows for each run
                 for run_name, run in experiment["rows"].items():
-                    page_id = self.notion_api.addPageToDatabase(database_id, run)[
-                        "id"]
+                    page_id = self.notion_api.addPageToDatabase(database_id, run)["id"]
                     # Add to notion state
-                    self.notion_state[experiment_name]["pages"][run_name] = {
-                        "page_id": page_id
-                    }
+                    self.notion_state[experiment_name]["pages"][run_name] = {"page_id": page_id}
         # Create specific set of experiments and runs
         elif command == "create":
-            assert (
-                diff_report is not None
-            ), "diff_report is required for create command"
+            assert diff_report is not None, "diff_report is required for create command"
             # Create tables for all experiments in the diff
             for experiment_name in diff_report["new"]:
-                assert (
-                    experiment_name in notion_report
-                ), f"{experiment_name} is already in notion_report"
+                assert experiment_name in notion_report, f"{experiment_name} is already in notion_report"
                 # Check if the experiment is empty
                 if not notion_report[experiment_name]["properties"]:
                     continue
@@ -137,90 +127,66 @@ class NotionSync:
                 }
                 # Create rows for each run
                 for run_name, run in notion_report[experiment_name]["rows"].items():
-                    page_id = self.notion_api.addPageToDatabase(database_id, run)[
-                        "id"]
+                    page_id = self.notion_api.addPageToDatabase(database_id, run)["id"]
                     # Add to notion state
-                    self.notion_state[experiment_name]["pages"][run_name] = {
-                        "page_id": page_id
-                    }
+                    self.notion_state[experiment_name]["pages"][run_name] = {"page_id": page_id}
 
         # Update existing set of reports
         elif command == "update":
             # New runs are added to the end of the table
             # TODO Support adding new columns
-            assert (
-                diff_report is not None
-            ), "diff_report is required for update command"
+            assert diff_report is not None, "diff_report is required for update command"
 
             # Update existing tables for all the experiments
             for experiment_name in diff_report["updated"]:
                 # Make sure this experiment is already in notion_report
-                assert (
-                    experiment_name in notion_report
-                ), f"{experiment_name} is not in notion_report"
+                assert experiment_name in notion_report, f"{experiment_name} is not in notion_report"
                 # Get existing database id
                 database_id = self.notion_state[experiment_name]["database_id"]
+                # Check if any new fields (columns) are added, if so, we need to update the database
+                # First, get the current properties of the database
+                current_properties = self.notion_api.readDatabase(database_id)["results"][0]["properties"]
+                # Check if there are new properties
+                new_properties = {k:v for k,v in notion_report[experiment_name]["properties"].items() if k not in current_properties}
+                if new_properties:
+                    # Update the database
+                    self.notion_api.updateDatabase(database_id, new_properties)
                 # Add new rows
                 for run_name in diff_report["updated"][experiment_name]["new"]:
                     run = notion_report[experiment_name]["rows"][run_name]
-                    page_id = self.notion_api.addPageToDatabase(database_id, run)[
-                        "id"]
+                    page_id = self.notion_api.addPageToDatabase(database_id, run)["id"]
                     # Add to notion state
-                    self.notion_state[experiment_name]["pages"][run_name] = {
-                        "page_id": page_id
-                    }
+                    self.notion_state[experiment_name]["pages"][run_name] = {"page_id": page_id}
                 # Delete old rows
-                for run_name in diff_report["updated"][experiment_name][
-                    "deleted"
-                ]:
-                    page_id = self.notion_state[experiment_name]["pages"][run_name][
-                        "page_id"
-                    ]
+                for run_name in diff_report["updated"][experiment_name]["deleted"]:
+                    page_id = self.notion_state[experiment_name]["pages"][run_name]["page_id"]
                     # Delete from notion state
                     del self.notion_state[experiment_name]["pages"][run_name]
                     # Delete from notion
-                    self.notion_api.deletePageFromDatabase(
-                        database_id, page_id, properties={}
-                    )
+                    self.notion_api.deletePageFromDatabase(database_id, page_id, properties={})
                 # Update existing rows
-                for run_name in diff_report["updated"][experiment_name][
-                    "updated"
-                ]:
+                for run_name in diff_report["updated"][experiment_name]["updated"]:
                     run = notion_report[experiment_name]["rows"][run_name]
-                    page_id = self.notion_state[experiment_name]["pages"][run_name][
-                        "page_id"
-                    ]
+                    page_id = self.notion_state[experiment_name]["pages"][run_name]["page_id"]
                     # Update notion
-                    self.notion_api.updatePageInDatabase(
-                        database_id, page_id, properties=run
-                    )
+                    self.notion_api.updatePageInDatabase(database_id, page_id, properties=run)
 
         # Delete existing set of reports
         elif command == "delete":
-            assert (
-                diff_report is not None
-            ), "diff_report is required for delete command"
+            assert diff_report is not None, "diff_report is required for delete command"
             # Delete existing tables for all the experiments
             for experiment_name in diff_report["deleted"]:
                 # Make sure this experiment is already in notion_report
-                assert (
-                    experiment_name in notion_report
-                ), f"{experiment_name} is not in notion_report"
+                assert experiment_name in notion_report, f"{experiment_name} is not in notion_report"
                 # Get existing database id
                 database_id = self.notion_state[experiment_name]["database_id"]
                 # Delete all rows
-                for run_name in diff_report["deleted"][experiment_name][
-                    "deleted"
-                ]:
-                    page_id = self.notion_state[experiment_name]["pages"][run_name][
-                        "page_id"
-                    ]
+                for run_name in diff_report["deleted"][experiment_name]["deleted"]:
+                    page_id = self.notion_state[experiment_name]["pages"][run_name]["page_id"]
                     # Delete from notion state
                     del self.notion_state[experiment_name]["pages"][run_name]
                     # Delete from notion
-                    self.notion_api.deletePageFromDatabase(
-                        database_id, page_id, properties=run
-                    )
+                    self.notion_api.deletePageFromDatabase(database_id, page_id, properties=run)
                 # Delete database
                 # NOTE: Notion does not support removing the database. Hence only removing entries
 
