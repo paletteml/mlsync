@@ -4,6 +4,12 @@ from mlsync.api.notion.notion_formatter import NotionFormatter
 
 class NotionSync:
     def __init__(self, notion_api: NotionAPI, root_page_id: str):
+        """Initialize the NotionSync object
+
+        Args:
+            notion_api (NotionAPI): The notion API object
+            root_page_id (str): The root page id
+        """
         self.root_page_id = root_page_id
         self.notion_api = notion_api
         assert self.notion_api.testPageAccess(
@@ -76,7 +82,13 @@ class NotionSync:
         return mlflow_report
 
     def mlflow_to_notion(self, mlflow_report, command="new", diff_report=None):
-        """Takes MLFlow report and syncs it with Notion."""
+        """Takes MLFlow report and syncs it with Notion.
+        
+        Args:
+            mlflow_report (dict): The MLFlow report
+            command (str): The command to execute, It can be "new", "create", "update" or "delete"
+            diff_report (dict): The diff report
+        """
         notion_report = self.notion_formatter.mlflow_to_notion(mlflow_report)
         # Create new set of reports
         if command == "new":

@@ -1,5 +1,5 @@
-# MLSync
-
+Overview
+======
 MLSync is a productivity tool that syncs your ML data with productivity tools you love. 
 
 ## Installation

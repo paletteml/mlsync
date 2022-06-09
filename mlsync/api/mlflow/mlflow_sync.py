@@ -6,6 +6,12 @@ class MLFlowSync:
     """Generate the report"""
 
     def __init__(self, mlflow_uri, report_format):
+        """Initialize the sync process
+
+        Args:
+            mlflow_uri (str): The root of the MLFlow server
+            report_format (str): The report format file path. See example in examples/formats/
+        """
         self.mlflow_uri = mlflow_uri
         self.mlflow_api = MLFlowAPI(mlflow_uri)
         # Since Notion API does not support images, detailed metrics are not useful
@@ -17,7 +23,11 @@ class MLFlowSync:
         ) = self.get_report_format(report_format)
 
     def get_report_format(self, report_format_file):
-        """Get the report format from the report_format_file"""
+        """Get the report format from the report_format_file
+        
+        Args:
+            report_format_file (str): The YAML report format file path. See example in examples/formats/
+        """
         report_format = yaml_loader(report_format_file)
         # Obtain the name for the run report
         run_report_format = {"key": "run_id", "values": report_format}
@@ -29,7 +39,7 @@ class MLFlowSync:
         return run_report_format, experiment_report_format
 
     def generate(self):
-        """Generate the report"""
+        """Generate the report based on the given format"""
 
         # Get all the experiments
         experiments = self.mlflow_api.getExperiments()
@@ -68,7 +78,12 @@ class MLFlowSync:
         return report
 
     def generate_experiment(self, report_experiment, experiment_report_format):
-        """Retain the experiment information"""
+        """Retain the experiment information
+        
+        Args:
+            report_experiment (dict): The experiment information from MLFlow
+            experiment_report_format (dict): The experiment report format
+        """
         # TODO: clean up the experiment information based on report.yaml
         # Convert to dict with experiment name as key
         report = {}
@@ -94,7 +109,12 @@ class MLFlowSync:
         return report
 
     def generate_run(self, reports_run, run_report_format):
-        """Generate the run report"""
+        """Generate the run report
+        
+        Args:
+            reports_run (list): The list of run information from MLFlow
+            run_report_format (dict): The run report format
+        """
         # TODO: clean up the run information based on report.yaml
         report = {}
         # Go through the run report
@@ -161,7 +181,11 @@ class MLFlowSync:
         return report
 
     def generate_run_metrics(self, report_metric):
-        """Generate the run metrics"""
+        """Generate the run metrics
+        
+        Args:
+            report_metric (dict): The metric information from MLFlow
+        """
         # TODO: clean up the run metrics based on report.yaml
         # TODO: based on type of the metric, change the return type
         if report_metric:

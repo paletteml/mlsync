@@ -4,6 +4,7 @@ import os
 from mlsync.sync import Sync
 
 def main():
+    """Main function for command line interface."""
     # take environment variables from .env
     load_dotenv(find_dotenv())
 

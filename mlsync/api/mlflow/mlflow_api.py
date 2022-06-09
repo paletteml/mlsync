@@ -5,14 +5,19 @@ class MLFlowAPI:
     """API to interact with MLFlow"""
 
     def __init__(self, mlflowRoot):
+        """Initialize the MLFlowAPI object
+        
+        Args:
+            mlflowRoot (str): The root of the MLFlow server
+        """
         self.mlflowRoot = mlflowRoot
 
     def getExperiment(self, experiment_id):
         """
         Get the experiment with the given id
 
-        :param id: experiment id
-        :return: experiment
+        Args:
+            experiment_id (str): experiment id
         """
         url = f"{self.mlflowRoot}/2.0/mlflow/experiments/get"
         r = requests.get(url, json={"experiment_id": experiment_id})
@@ -34,7 +39,15 @@ class MLFlowAPI:
         order_by=None,
         page_token=None,
     ):
-        """Get the runs with the given experiment id and other filters"""
+        """Get the runs with the given experiment id and other filters
+        
+        Args:
+            experiment_id (str): experiment id
+            filter_string (str): filter string for the query
+            max_results (int): max number of results to return
+            order_by (str): order by field
+            page_token (str): page token
+        """
         url = f"{self.mlflowRoot}/2.0/mlflow/runs/search"
         r = requests.post(
             url,
@@ -53,8 +66,9 @@ class MLFlowAPI:
         """
         Get the experiment with the given id
 
-        :param id: experiment id
-        :return: experiment
+        Args:
+            run_id (str): run id, unique for each run
+            metric_key (str): metric key to get. For example, accuracy
         """
         url = f"{self.mlflowRoot}/2.0/mlflow/metrics/get-history"
         r = requests.get(url, json={"run_id": run_id, "metric_key": metric_key})

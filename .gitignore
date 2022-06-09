@@ -152,7 +152,3 @@ MNIST/
 # Local
 *.env
 config.yaml
-
-# Sphinx Documentation
-docs/_build/
-docs/

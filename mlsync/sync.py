@@ -17,11 +17,9 @@ class Sync:
         Instantiates source and destination APIs. Check docs for more details.
 
         Args:
-        -----
             args (argparse.Namespace): Parsed arguments
 
         Raises:
-        ------
             NotImplementedError: If the source or destination is not supported
         """
         self.args = args
@@ -106,7 +104,7 @@ class Sync:
         yaml_dumper(configs, filepath=args.config)
 
     def sync(self):
-        """Sync between the source and the destination
+        """Sync between the source and the destination.
 
         Creates a diff report whenever there is a difference between the source and the destination.
         Then the diff report is uploaded to the destination. We do not update the source for any changes.

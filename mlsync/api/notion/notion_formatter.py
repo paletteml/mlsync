@@ -2,6 +2,7 @@ class NotionFormatter:
     """Converts reports into Notion's formats."""
 
     def __init__(self):
+        """Initialize the NotionFormatter."""
         def create_title_property(title):
             return {"title": [{"text": {"content": title}}]}
 
@@ -58,8 +59,10 @@ class NotionFormatter:
         """
         Convert a mlflow report into a Notion table.
 
-        :param mlflow_report:
-        :return:
+        Args:
+            mlflow_report (dict): The mlflow report. Format is derived from the report format file.
+            properties (dict): The properties of the database.
+            row_property (dict): The properties of the page.
         """
         # Convert MLFlow report into a Notion table
         notion_report = {}
