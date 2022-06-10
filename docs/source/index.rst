@@ -12,7 +12,9 @@ Welcome to mlsync's documentation!
 
    readme
    modules
-
+   topical_guides/index
+   configs/index
+   examples/index
 
 Indices and tables
 ==================

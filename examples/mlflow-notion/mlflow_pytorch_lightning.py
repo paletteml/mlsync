@@ -52,11 +52,11 @@ class MNISTDataModule(pl.LightningDataModule):
         """
 
         self.df_train = datasets.MNIST(
-            "dataset", download=True, train=True, transform=self.transform
+            "./", download=True, train=True, transform=self.transform
         )
         self.df_train, self.df_val = random_split(self.df_train, [55000, 5000])
         self.df_test = datasets.MNIST(
-            "dataset", download=True, train=False, transform=self.transform
+            "./", download=True, train=False, transform=self.transform
         )
 
     def create_data_loader(self, df):

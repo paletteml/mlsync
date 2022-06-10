@@ -12,14 +12,14 @@ pip install mlsync
 
 Sync your machine learning experiments to Notion in a few simple steps!
 
-![Alt Text](https://github.com/paletteml/mlsync/blob/master/misc/assets/MLSync-Notion-demo.gif?raw=true)
+<img src="./misc/media/MLSync-Notion-demo.gif" width="50%" height="50%"/>
 
 ### Configuration Setup
 
 Let us first setup the run environment.
 
 1. To begin, checkout this repository: `git clone https://github.com/paletteml/mlsync.git`
-2. Change to the `mlsync` directory: `cd mlsync`
+2. Change to the `mlsync/examples/mlflow-notion` directory: `cd mlsync/examples/mlflow-notion/`
 3. Rename the `.env.example` file in your path: `mv .env.example .env`. This file is intended to store your personal API keys.
 
 Note that the directory contains YAML files for configurations (`config.yaml`) and report formatting (`format.yaml`). We will leave the configurations as is for now.
@@ -30,7 +30,7 @@ Now let us setup our ML Training environment. For this example, we will rely on 
 
 1. If not already installed, install PyTorch based on the guide [here](https://pytorch.org/get-started/locally/). (Only needed for the provided example).
 2. Install `mlflow` package using `pip install mlflow`. More about installation [here](https://www.mlflow.org/docs/latest/quickstart.html).
-3. Run example training using `python mlflow_pytorch.py --run_name <Run 1>`. This will create a new MLFlow run.
+3. Run example training using `python mlflow_pytorch.py --run-name <Run 1>`. This will create a new MLFlow run.
 4. Launch MLFlow UI using `mlflow ui &`. Copy the mlflow uri (seen in the command line as `[INFO] Listening at: <URL>`). Let it run in the background.
 5. Update the `uri` field in the configuration file in your folder (`config.yaml`) under `mlflow` with the just copied mlflow uri.
 
