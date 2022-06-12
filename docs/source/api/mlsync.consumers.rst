@@ -1,5 +1,5 @@
-mlsync.api package
-==================
+mlsync.consumers package
+========================
 
 Subpackages
 -----------
@@ -7,13 +7,12 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   mlsync.api.mlflow
-   mlsync.api.notion
+   mlsync.consumers.notion
 
 Module contents
 ---------------
 
-.. automodule:: mlsync.api
+.. automodule:: mlsync.consumers
    :members:
    :undoc-members:
    :show-inheritance:

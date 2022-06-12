@@ -5,7 +5,7 @@ with open('README.md') as f:
 
 setup(
     name='mlsync',
-    version='0.1.2',
+    version='0.1.3',
     description='Sync your machine learning data to your favorite productivity tools',
     long_description=long_description,
     long_description_content_type="text/markdown",

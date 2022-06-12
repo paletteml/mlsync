@@ -4,15 +4,15 @@ from notion_client.helpers import get_id
 
 
 class NotionAPI:
-    """An API for Notion."""
+    """An API for Notion.
+
+    Attributes:    
+        token (str): A token to access Notion.
+        version (str): The version of the API to use.
+    """
 
     def __init__(self, token, version="v3"):
-        """Initialize the Notion API.
-
-        Args:
-            token (str): A token to access Notion.
-            version (str): The version of the API to use.
-        """
+        """Initialize the Notion API."""
         self.notion = Client(auth=token)
         self.notion_version = version
 

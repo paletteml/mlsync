@@ -1,4 +1,5 @@
 # Contributing to MLSync
+
 We love your input! We want to make contributing to this project as easy and transparent as possible, whether it's:
 
 - Reporting a bug
@@ -8,9 +9,11 @@ We love your input! We want to make contributing to this project as easy and tra
 - Becoming a maintainer
 
 ## We Develop with Github
+
 We use github to host code, to track issues and feature requests, as well as accept pull requests.
 
 ## We Use [Github Flow](https://guides.github.com/introduction/flow/index.html), So All Code Changes Happen Through Pull Requests
+
 Pull requests are the best way to propose changes to the codebase (we use [Github Flow](https://guides.github.com/introduction/flow/index.html)). We actively welcome your pull requests:
 
 1. Fork the repo and create your branch from `master`.
@@ -21,10 +24,12 @@ Pull requests are the best way to propose changes to the codebase (we use [Githu
 6. Issue that pull request!
 
 ## Any contributions you make will be under the same License as MLSync [Apache 2.0](http://www.apache.org/licenses/)
+
 In short, when you submit code changes, your submissions are understood to be under the same [Apache 2.0](http://www.apache.org/licenses/) that covers the project. Feel free to contact the maintainers if that's a concern.
 
 ## Report bugs using Github's issues
-We use GitHub issues to track public bugs. Report a bug by [opening a new issue](); it's that easy!
+
+We use GitHub issues to track public bugs. Report a bug by [opening a new issue](https://github.com/paletteml/mlsync/issues); it's that easy!
 
 ## Write bug reports with detail, background, and sample code
 
@@ -41,5 +46,6 @@ We use GitHub issues to track public bugs. Report a bug by [opening a new issue]
 People *love* thorough bug reports.
 
 ## Use a Consistent Coding Style
-We use Google's (guidelines)[https://google.github.io/styleguide/pyguide.html].
+
+We use Google's [guidelines](https://google.github.io/styleguide/pyguide.html) for Python code.
 You can try running `black` to check.

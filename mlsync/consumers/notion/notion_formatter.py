@@ -1,8 +1,10 @@
 class NotionFormatter:
     """Converts reports into Notion's formats."""
 
-    def __init__(self):
+    def __init__(self, notion_api):
         """Initialize the NotionFormatter."""
+        self.notion_api = notion_api
+
         def create_title_property(title):
             return {"title": [{"text": {"content": title}}]}
 
@@ -19,6 +21,7 @@ class NotionFormatter:
         def create_rich_text_property(param):
             return {"rich_text": [{"text": {"content": param}}]}
 
+        # TODO: Obtain this from report format
         self.properties = {
             "predefined": {
                 "Name": {"title": {}},
@@ -55,20 +58,20 @@ class NotionFormatter:
             },
         }
 
-    def mlflow_to_notion(self, mlflow_report, properties=None, row_property=None):
+    def format_out(self, report, properties=None, row_property=None):
         """
-        Convert a mlflow report into a Notion table.
+        Convert mlsync report into a Notion table.
 
         Args:
-            mlflow_report (dict): The mlflow report. Format is derived from the report format file.
+            report (dict): The mlflow report. Format is derived from the report format file.
             properties (dict): The properties of the database.
             row_property (dict): The properties of the page.
         """
-        # Convert MLFlow report into a Notion table
+        # Convert MLSync report into a Notion table
         notion_report = {}
 
         # Each Experiment becomes a database
-        for experiment_name, experiment in mlflow_report.items():
+        for experiment_name, experiment in report.items():
             experiment_report = {}
 
             # 1. First create the properties of the database
@@ -83,15 +86,9 @@ class NotionFormatter:
                         if key in properties["predefined"]:
                             experiment_property[key] = properties["predefined"][key]
                         elif type(value) in properties["undefined"]:
-                            experiment_property[key] = properties["undefined"][
-                                type(value)
-                            ]
+                            experiment_property[key] = properties["undefined"][type(value)]
                         else:
-                            sys.exit(
-                                "Unknwon type of property: {0} or key: {1}".format(
-                                    type(value), key
-                                )
-                            )
+                            sys.exit("Unknwon type of property: {0} or key: {1}".format(type(value), key))
 
             # Add the properties to the experiment report
             experiment_report["properties"] = experiment_property
@@ -105,15 +102,9 @@ class NotionFormatter:
                     if key in row_property["predefined"]:
                         run_property[key] = row_property["predefined"][key](value)
                     elif type(value) in row_property["undefined"]:
-                        run_property[key] = row_property["undefined"][type(value)](
-                            value
-                        )
+                        run_property[key] = row_property["undefined"][type(value)](value)
                     else:
-                        sys.exit(
-                            "Unknwon type of property: {0} or key: {1}".format(
-                                type(value), key
-                            )
-                        )
+                        sys.exit("Unknwon type of property: {0} or key: {1}".format(type(value), key))
 
                 # Any missing properties are set to None TODO
                 # for property_key in experiment_property:
@@ -129,9 +120,67 @@ class NotionFormatter:
 
         return notion_report
 
+    def format_in(self, notion_report, root_page_id):
+        """Converts current Notion report and converts it to MLSync report.
+
+        Args:
+            notion_report (dict): The Notion report as obtained from the Notion API.
+        """
+        state = {}
+        report = {}
+
+        # Read the property
+        def read_property(property_object):
+            if property_object["type"] == "rich_text":
+                return property_object["rich_text"][0]["text"]["content"]
+            elif property_object["type"] == "number":
+                return property_object["number"]
+            elif property_object["type"] == "title":
+                return property_object["title"][0]["text"]["content"]
+            elif property_object["type"] == "select":
+                return property_object["select"]["name"]
+            else:
+                sys.exit("Unknown property type: " + property_object["type"])
+
+        # Search through the databases to find all the pages
+        for database in notion_report["results"]:
+            if database["parent"]["page_id"] != root_page_id:
+                continue
+            if database["title"]:
+                # Get name and id of the database
+                database_name = database["title"][0]["text"]["content"]
+                database_id = database["id"]
+                # Create the experiment report
+                experiment_report = {
+                    "name": database_name,
+                    "id": database_id,
+                    "runs": {},
+                }
+                # update notion state
+                state[database_name] = {"database_id": database_id, "pages": {}}
+                # Get all the pages in the database
+                pages = self.notion_api.readDatabase(database_id)
+                pages = pages["results"] if (pages) else []
+                # All the rows
+                for page in pages:
+                    page_id = page["id"]
+                    page_name = read_property(page["properties"]["Name"])
+                    page_properties = {}
+                    for page_property_name, page_property in page["properties"].items():
+                        page_properties[page_property_name] = read_property(page_property)
+                    # update notion state
+                    state[database_name]["pages"][page_name] = {"page_id": page_id}
+
+                    experiment_report["runs"][page_name] = page_properties
+
+                # Update mlflow report
+                report[database_name] = experiment_report
+
+        return report, state
+
 
 if __name__ == "__main__":
-    mlflow_report = {
+    report = {
         "CIFAR10": {
             "id": "0",
             "name": "CIFAR10",
@@ -206,5 +255,5 @@ if __name__ == "__main__":
         },
     }
     notion_formatter = NotionFormatter()
-    notion_reports = notion_formatter.mlflow_to_notion(mlflow_report)
+    notion_reports = notion_formatter.format_out(report)
     print(notion_reports)

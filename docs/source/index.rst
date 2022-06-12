@@ -11,7 +11,7 @@ Welcome to mlsync's documentation!
    :caption: Contents:
 
    readme
-   modules
+   api/modules
    topical_guides/index
    configs/index
    examples/index

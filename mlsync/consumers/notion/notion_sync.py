@@ -1,92 +1,52 @@
 import sys
-from mlsync.api.notion.notion_api import NotionAPI
-from mlsync.api.notion.notion_formatter import NotionFormatter
+from mlsync.consumers.notion.notion_api import NotionAPI
+from mlsync.consumers.notion.notion_formatter import NotionFormatter
 
 
 class NotionSync:
-    def __init__(self, notion_api: NotionAPI, root_page_id: str):
-        """Initialize the NotionSync object
+    """Sync data from mlsync to Notion.
 
-        Args:
-            notion_api (NotionAPI): The notion API object
-            root_page_id (str): The root page id
-        """
+    Args:
+        notion_api (NotionAPI): The Notion API object.
+        root_page_id (str): The root page id
+    """
+    def __init__(self, notion_api: NotionAPI, root_page_id: str):
+        """Initialize the NotionSync object"""
         self.root_page_id = root_page_id
         self.notion_api = notion_api
         assert self.notion_api.testPageAccess(
             self.root_page_id
         ), "Could not access the Notion page, please ensure you shared the page with the Notion integration."
-        self.notion_formatter = NotionFormatter()
+        self.notion_formatter = NotionFormatter(notion_api=self.notion_api)
         self.notion_state = {}
 
-    def notion_to_mlflow(self):
-        """Fetches current Notion state and converts it to MLFlow report."""
-        notion_state = {}
-        mlflow_report = {}
-
-        # Read the property
-        def read_property(property_object):
-            if property_object["type"] == "rich_text":
-                return property_object["rich_text"][0]["text"]["content"]
-            elif property_object["type"] == "number":
-                return property_object["number"]
-            elif property_object["type"] == "title":
-                return property_object["title"][0]["text"]["content"]
-            elif property_object["type"] == "select":
-                return property_object["select"]["name"]
-            else:
-                sys.exit("Unknown property type: " + property_object["type"])
+    def pull(self):
+        """Fetch the current state of the Notion page and return report in mlsync format."""
 
         # Get all the current databases
         databases = self.notion_api.getAllDatabases()
-        # Search through the databases to find all the pages
-        for database in databases["results"]:
-            if database["parent"]["page_id"] != self.root_page_id:
-                continue
-            if database["title"]:
-                # Get name and id of the database
-                database_name = database["title"][0]["text"]["content"]
-                database_id = database["id"]
-                # Create the experiment report
-                experiment_report = {
-                    "name": database_name,
-                    "id": database_id,
-                    "runs": {},
-                }
-                # update notion state
-                notion_state[database_name] = {"database_id": database_id, "pages": {}}
-                # Get all the pages in the database
-                pages = self.notion_api.readDatabase(database_id)
-                pages = pages["results"] if (pages) else []
-                # All the rows
-                for page in pages:
-                    page_id = page["id"]
-                    page_name = read_property(page["properties"]["Name"])
-                    page_properties = {}
-                    for page_property_name, page_property in page["properties"].items():
-                        page_properties[page_property_name] = read_property(page_property)
-                    # update notion state
-                    notion_state[database_name]["pages"][page_name] = {"page_id": page_id}
 
-                    experiment_report["runs"][page_name] = page_properties
-
-                # Update mlflow report
-                mlflow_report[database_name] = experiment_report
+        # Convert to mlsync format
+        report, state = self.notion_formatter.format_in(
+            notion_report=databases, 
+            root_page_id=self.root_page_id
+        )
 
         # Update notion state
-        self.notion_state = notion_state
+        self.notion_state = state
 
-        return mlflow_report
+        return report
 
-    def mlflow_to_notion(self, mlflow_report, command="new", diff_report=None):
-        """Takes MLFlow report and syncs it with Notion.
+    def push(self, report, command="new", diff_report=None):
+        """Takes current MLSync report and syncs it with Notion.
 
         Args:
-            mlflow_report (dict): The MLFlow report
+            report (dict): MLSync report
             command (str): The command to execute, It can be "new", "create", "update" or "delete"
-            diff_report (dict): The diff report
+            diff_report (dict): The diff report describing the changes to be made.
         """
-        notion_report = self.notion_formatter.mlflow_to_notion(mlflow_report)
+        # Convert to notion format
+        notion_report = self.notion_formatter.format_out(report)
         # Create new set of reports
         if command == "new":
             # Create new tables for all the experiments
@@ -147,7 +107,9 @@ class NotionSync:
                 # First, get the current properties of the database
                 current_properties = self.notion_api.readDatabase(database_id)["results"][0]["properties"]
                 # Check if there are new properties
-                new_properties = {k:v for k,v in notion_report[experiment_name]["properties"].items() if k not in current_properties}
+                new_properties = {
+                    k: v for k, v in notion_report[experiment_name]["properties"].items() if k not in current_properties
+                }
                 if new_properties:
                     # Update the database
                     self.notion_api.updateDatabase(database_id, new_properties)

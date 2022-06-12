@@ -55,7 +55,8 @@ release = '0.1.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.napoleon', # for docstring support
-                'recommonmark', # For markdown
+                # 'recommonmark', # For markdown
+                'myst_parser', # For myst
                 ]
 
 # Add any paths that contain templates here, relative to this directory.

@@ -1,13 +1,17 @@
 .. _guides:
 
-==============
-Configuration
-==============
+================
+Supported Tools
+================
 
-This sections covers various aspects of MLSync more in-depth.
+This sections covers details on all the tools that are supported by MLSync.
+For each tool, we provide a brief description of the tool and documentation
+on how to interface them with MLSync. 
+
+They are grouped into the following categories based on whether they produce the data or consume the data:
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
-   mlflow
-   notion
+   producers/index
+   consumers/index

@@ -1,4 +1,4 @@
-from mlsync.api.mlflow.mlflow_api import MLFlowAPI
+from mlsync.producers.mlflow.mlflow_api import MLFlowAPI
 from mlsync.utils.utils import yaml_loader
 
 
@@ -10,7 +10,7 @@ class MLFlowSync:
 
         Args:
             mlflow_uri (str): The root of the MLFlow server
-            report_format (str): The report format file path. See example in examples/formats/
+            report_format (dict): The report format
         """
         self.mlflow_uri = mlflow_uri
         self.mlflow_api = MLFlowAPI(mlflow_uri)
@@ -22,13 +22,12 @@ class MLFlowSync:
             self.experiment_report_format,
         ) = self.get_report_format(report_format)
 
-    def get_report_format(self, report_format_file):
+    def get_report_format(self, report_format):
         """Get the report format from the report_format_file
 
         Args:
-            report_format_file (str): The YAML report format file path. See example in examples/formats/
+            report_format (dict): Report format dict.
         """
-        report_format = yaml_loader(report_format_file)
         # Obtain the name for the run report
         run_report_format = {"key": "run_id", "values": report_format}
         experiment_report_format = {
@@ -38,8 +37,13 @@ class MLFlowSync:
         }
         return run_report_format, experiment_report_format
 
-    def generate(self):
-        """Generate the report based on the given format"""
+    def push(self, report):
+        """Push the report to MLFLow"""
+        # We will not push any changes to MLFlow
+        raise NotImplementedError
+
+    def pull(self):
+        """Generate the MLFlow report based on the given format"""
 
         # Get all the experiments
         experiments = self.mlflow_api.getExperiments()
@@ -200,74 +204,11 @@ class MLFlowSync:
         else:
             return {}
 
-    def diff(self, report_old, report_new):
-        """Generate the diff report
-
-        MLFlow reports can change the following ways:
-        1. Older experiments/runs were deleted: Supported
-        2. Newer experiments/runs were added: Supported
-        3. Newer experiments/runs have different metrics: TODO
-
-        MLFlow reports can NOT change the following ways:
-        1. Older experiments/runs have different metrics
-
-        Args:
-            report_old: the old report
-            report_new: the new report
-        """
-        diff_experiment_report = {"new": {}, "deleted": {}, "updated": {}}
-        # Only if the reports dont match, we will generate the diff
-        if report_old != report_new:
-            # Step 1: Compare the old and the new experiments
-            for experiment_name in report_old:
-                # If the experiment is not in the new report, then it is deleted
-                if experiment_name not in report_new:
-                    diff_experiment_report["deleted"][experiment_name] = experiment_name
-                # If the experiment is in the new report, then we will compare the runs
-                else:
-                    experiment_new = report_new[experiment_name]
-                    experiment_old = report_old[experiment_name]
-
-                    # Check if they are not the same
-                    if experiment_new != experiment_old:
-                        # Compare the runs
-                        diff_run_report = {
-                            "new": [],
-                            "deleted": [],
-                            "updated": [], # Only the values changed
-                        }
-                        # Compare the runs between the old and new report
-                        for run_id in experiment_old["runs"]:
-                            # If the run is not in the new report, then it is deleted
-                            if run_id not in experiment_new["runs"]:
-                                diff_run_report["deleted"].append(run_id)
-                            # Status of the run must have changed
-                            elif experiment_new["runs"][run_id] != experiment_old["runs"][run_id]:
-                                # Updated rows
-                                diff_run_report["updated"].append(run_id)
-                        # Compare the runs between the new and old report
-                        for run_id in experiment_new["runs"]:
-                            # If the run is not in the old report, then it is added
-                            if run_id not in experiment_old["runs"]:
-                                diff_run_report["new"].append(run_id)
-                                # Also check if the run has new metrics #TODO
-                            # Other case is captured above
-                        # Add to updated experiments
-                        diff_experiment_report["updated"][experiment_name] = diff_run_report
-            # Compare the new and the old experiments
-            for experiment_name in report_new:
-                # If the experiment is not in the old report, then it is added
-                if experiment_name not in report_old:
-                    diff_experiment_report["new"][experiment_name] = experiment_name
-
-        return diff_experiment_report
-
-
 if __name__ == "__main__":
     import os
 
     mlflowRoot = "http://127.0.0.1:5000/api"
     report_format = os.path.join(os.path.dirname(__file__), "../../../formats/mlflow.yaml")
     generate = MLFlowSync(mlflowRoot, report_format=report_format)
-    report = generate.generate()
+    report = generate.pull()
     print(report)
