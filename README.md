@@ -56,7 +56,7 @@ Let us now link Notion to MLSync. This is required only for the first time you r
 You are now all set! Now let us sync your MLFlow runs to Notion.
 
 ```sh
-mlsync --config config.yaml --report_format format.yaml
+mlsync --config config.yaml --format format.yaml
 ```
 
 That's it! You can now view your MLFlow runs in Notion. As long as mlsync is running, all your future experiments and runs should appear in selected Notion page.
