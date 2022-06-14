@@ -1,7 +1,7 @@
-mlsync
+API Reference
 ======
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 6
 
    mlsync

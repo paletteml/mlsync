@@ -10,7 +10,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='https://github.com/paletteml/mlsync',
-    author='Andre Terron and Kartik Hegde',
+    author='PaletteML Team',
     author_email='support@paletteml.com',
     license='Apache 2.0',
     packages=find_packages(include=['mlsync', 'mlsync.*']),

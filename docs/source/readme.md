@@ -1,5 +1,37 @@
 Overview
-======
+======<div align="center">
+
+<img src="./misc/media/mlsync.png" width="40%" height="40%" width="400px">
+
+**Sync your ML data seamlessly with productivity tools you love**
+
+______________________________________________________________________
+
+<p align="center">
+  <a href="https://www.pytorchlightning.ai/">Website</a> •
+  <a href="#key-features">Key Features</a> •
+  <a href="#how-to-use">How To Use</a> •
+  <a href="https://mlsync.readthedocs.io/en/latest/">Docs</a> •
+  <a href="#examples">Examples</a> •
+  <a href="#community">Community</a> •
+  <a href="#contributing">Contributing</a>
+</p>
+
+<!-- DO NOT ADD CONDA DOWNLOADS... README CHANGES MUST BE APPROVED BY EDEN OR WILL -->
+
+<!-- [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mlsync)](https://pypi.org/project/mlsync/) -->
+[![PyPI Status](https://badge.fury.io/py/mlsync.svg)](https://badge.fury.io/py/mlsync)
+[![PyPI Status](https://pepy.tech/badge/mlsync)](https://pepy.tech/project/mlsync)
+[![ReadTheDocs](https://readthedocs.org/projects/mlsync/badge/?version=latest)](https://mlsync.readthedocs.io/en/latest/)
+[![Slack](https://img.shields.io/badge/slack-chat-green.svg?logo=slack)](https://join.slack.com/t/mlsync/shared_invite/zt-1ap8axys5-awwIfDGR8OWP1oFRKZp6OQ)
+[![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/paletteml/mlsync/blob/master/LICENSE)
+
+<!--
+[![CodeFactor](https://www.codefactor.io/repository/github/pytorchlightning/mlsync/badge)](https://www.codefactor.io/repository/github/pytorchlightning/mlsync)
+-->
+
+</div>
+
 MLSync is a productivity tool that syncs your ML data with productivity tools you love. 
 
 ## Installation
@@ -32,10 +64,7 @@ Now let us setup our ML Training environment. For this example, we will rely on 
 2. Install `mlflow` package using `pip install mlflow`. More about installation [here](https://www.mlflow.org/docs/latest/quickstart.html).
 3. Run example training using `python mlflow_pytorch.py --run-name <Run 1>`. This will create a new MLFlow run.
 4. Launch MLFlow UI using `mlflow ui &`. Copy the mlflow uri (seen in the command line as `[INFO] Listening at: <URL>`). Let it run in the background.
-5. Update the `uri` field in the configuration file in your folder (`config.yaml`) under `mlflow` with the just copied mlflow uri.
-
-### Notion Setup
-
+5. Update the `uri` field in t<!-- [![DockerHub](https://img.shields.io/docker/pulls/pytorchlightning/pytorch_lightning.svg)](https://hub.docker.com/r/pytorchlightning/pytorch_lightning) -->
 Let us now link Notion to MLSync. This is required only for the first time you run MLSync.
 
 1. Create a new integration to Notion.
@@ -56,7 +85,7 @@ Let us now link Notion to MLSync. This is required only for the first time you r
 You are now all set! Now let us sync your MLFlow runs to Notion.
 
 ```sh
-mlsync --config config.yaml --report_format format.yaml
+mlsync --config config.yaml --format format.yaml
 ```
 
 That's it! You can now view your MLFlow runs in Notion. As long as mlsync is running, all your future experiments and runs should appear in selected Notion page.

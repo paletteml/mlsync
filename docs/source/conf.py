@@ -43,8 +43,8 @@ with readme_target.open("w") as outf:
 # -- Project information -----------------------------------------------------
 
 project = 'mlsync'
-copyright = '2022, Andre and Kartik'
-author = 'Andre and Kartik'
+copyright = '2022, PaletteML'
+author = 'PaletteML Team'
 
 # The full version, including alpha/beta/rc tags
 release = '0.1.0'
