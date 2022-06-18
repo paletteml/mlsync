@@ -1,38 +1,60 @@
 Overview
 ======<div align="center">
 
-<img src="./misc/media/mlsync.png" width="40%" height="40%" width="400px">
+<img src="./misc/media/mlsync.png" width="25%" height="25%" width="400px">
 
 **Sync your ML data seamlessly with productivity tools you love**
 
 ______________________________________________________________________
 
 <p align="center">
-  <a href="https://www.pytorchlightning.ai/">Website</a> •
-  <a href="#key-features">Key Features</a> •
-  <a href="#how-to-use">How To Use</a> •
+  <a href="https://www.paletteml.com/">Website</a> •
+  <a href="#installation">Installation</a> •
   <a href="https://mlsync.readthedocs.io/en/latest/">Docs</a> •
-  <a href="#examples">Examples</a> •
-  <a href="#community">Community</a> •
+  <a href="#example">Examples</a> •
   <a href="#contributing">Contributing</a>
 </p>
 
-<!-- DO NOT ADD CONDA DOWNLOADS... README CHANGES MUST BE APPROVED BY EDEN OR WILL -->
 
-<!-- [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mlsync)](https://pypi.org/project/mlsync/) -->
 [![PyPI Status](https://badge.fury.io/py/mlsync.svg)](https://badge.fury.io/py/mlsync)
 [![PyPI Status](https://pepy.tech/badge/mlsync)](https://pepy.tech/project/mlsync)
 [![ReadTheDocs](https://readthedocs.org/projects/mlsync/badge/?version=latest)](https://mlsync.readthedocs.io/en/latest/)
 [![Slack](https://img.shields.io/badge/slack-chat-green.svg?logo=slack)](https://join.slack.com/t/mlsync/shared_invite/zt-1ap8axys5-awwIfDGR8OWP1oFRKZp6OQ)
 [![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/paletteml/mlsync/blob/master/LICENSE)
 
-<!--
-[![CodeFactor](https://www.codefactor.io/repository/github/pytorchlightning/mlsync/badge)](https://www.codefactor.io/repository/github/pytorchlightning/mlsync)
--->
-
 </div>
 
-MLSync is a productivity tool that syncs your ML data with productivity tools you love. 
+## Overview
+
+### What is MLSync?
+
+MLSync is a Python library that acts as a bridge between your ML workflow and your project planning and management tools.
+
+### Why MLSync?
+
+Developing ML projects is a lot of fun, but they are also hard to plan and manage. 
+While the ML community has built several tools for developers to better track and visualize their ML workflow data,
+there is a disconnect between ML workflow data and the tools that are used for project management.
+MLSync is designed to bridge this gap.
+
+<img src="./misc/media/MLSync-Notion-demo.gif" width="50%" height="50%"/>
+
+### How Does it Work?
+
+There are four main aspects of MLSync:
+
+1. MLSync interfaces with modern ML experiment tracking tools such as [MLflow](https://www.mlflow.org/) and imports the raw data.
+2. Raw data from ML experiment tracking tools is converted to MLSync internal data format (user defined) and stored in a database.
+3. MLSync engine processes this raw data and generates consolidated insights for your project.
+4. The insights are then converted to suitable formats and sent to your project planning and management tools such as [Notion](https://notion.so/).
+
+<div align="center">
+<img src="./misc/media/mlsync-arch.png" width="75%" height="75%">
+</div>
+
+Figure above describes the architectural vision of MLSync. 
+All the functionality are not yet available, please refer to the [Roadmap](#roadmap) for current status.
+If you would like to contribute to MLSync, please refer to the [Contributing](#contributing) section.
 
 ## Installation
 
@@ -40,11 +62,10 @@ MLSync is a productivity tool that syncs your ML data with productivity tools yo
 pip install mlsync
 ```
 
-## Example: MLFlow -> Notion
+## Example
 
-Sync your machine learning experiments to Notion in a few simple steps!
+In this example, we will sync your machine learning experiments to Notion in a few simple steps!
 
-<img src="./misc/media/MLSync-Notion-demo.gif" width="50%" height="50%"/>
 
 ### Configuration Setup
 
