@@ -7,7 +7,7 @@
 ______________________________________________________________________
 
 <p align="center">
-  <a href="https://www.paletteml.com/">Website</a> •
+  <a href="https://www.mlsync.dev/">Website</a> •
   <a href="#installation">Installation</a> •
   <a href="https://mlsync.readthedocs.io/en/latest/">Docs</a> •
   <a href="#example">Examples</a> •
