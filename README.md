@@ -51,7 +51,8 @@ There are four main aspects of MLSync:
 <img src="./misc/media/mlsync-arch.png" width="75%" height="75%">
 </div>
 
-The figure above describes the architectural vision of MLSync. 
+We are actively building MLSync with the vision to become a one-stop standard interface to map data from ML experiments to project management tools. 
+The above figure shows the  high-level architecture of MLSync.
 All the functionality is not yet available; please refer to the [Roadmap](#roadmap) for the current status.
 If you would like to contribute to MLSync, please refer to the [Contributing](#contributing) section.
 
