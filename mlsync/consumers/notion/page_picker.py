@@ -43,7 +43,7 @@ def pick_page(token):
     options = list(map(page_to_option, pages))
     questions = [
         inquirer.List('page',
-                      message="Choose a page",
+                      message="Choose a page with arrow keys and enter",
                       #   choices=[('🔎 Search Pages', SEARCH_ID), *options],
                       choices=options
                       ),

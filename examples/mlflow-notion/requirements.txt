@@ -1,0 +1,5 @@
+mlflow
+torch
+torchmetrics
+torchvision
+pytorch_lightning

@@ -113,13 +113,15 @@ def main():
             mlflow_uri = args.mlflow_uri
             configs['mlflow']['uri'] = mlflow_uri
         # 2. Second preference, config file
-        elif configs["mlflow"]["uri"]:
+        elif "uri" in configs["mlflow"]:
             mlflow_uri = configs["mlflow"]["uri"]
         else:
             mlflow_uri = os.getenv("MLFLOW_URI")
         # Make sure the URI is valid
         if mlflow_uri is None:
-            raise ValueError("MLFLOW_URI is not set")
+            print("WARNING: No MLFlow URI specified, using default.")
+            mlflow_uri = "http://127.0.0.1:5000"
+            configs['mlflow']['uri'] = mlflow_uri
         # Append /api
         mlflow_uri = f"{mlflow_uri}/api"
         # Add to kwargs

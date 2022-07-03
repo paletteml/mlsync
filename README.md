@@ -14,7 +14,6 @@ ______________________________________________________________________
   <a href="#contributing">Contributing</a>
 </p>
 
-
 [![PyPI Status](https://badge.fury.io/py/mlsync.svg)](https://badge.fury.io/py/mlsync)
 [![PyPI Status](https://pepy.tech/badge/mlsync)](https://pepy.tech/project/mlsync)
 [![ReadTheDocs](https://readthedocs.org/projects/mlsync/badge/?version=latest)](https://mlsync.readthedocs.io/en/latest/)
@@ -31,7 +30,7 @@ MLSync is a Python library that acts as a bridge between your ML workflow and yo
 
 ### Why MLSync?
 
-Developing ML projects is a lot of fun, but they are also hard to plan and manage. 
+Developing ML projects is a lot of fun, but they are also hard to plan and manage.
 While the ML community has built several tools for developers to better track and visualize their ML workflow data,
 there is a disconnect between ML workflow data and the tools that are used for project management.
 MLSync is designed to bridge this gap.
@@ -51,7 +50,7 @@ There are four main aspects of MLSync:
 <img src="./misc/media/mlsync-arch.png" width="75%" height="75%">
 </div>
 
-We are actively building MLSync with the vision to become a one-stop standard interface to map data from ML experiments to project management tools. 
+We are actively building MLSync with the vision to become a one-stop standard interface to map data from ML experiments to project management tools.
 The above figure shows the  high-level architecture of MLSync.
 All the functionality is not yet available; please refer to the [Roadmap](#roadmap) for the current status.
 If you would like to contribute to MLSync, please refer to the [Contributing](#contributing) section.
@@ -64,68 +63,65 @@ pip install mlsync
 
 ## Example
 
-In this example, we will sync your machine learning experiments to Notion in a few simple steps!
+In this example, we will sync your machine learning experiments to Notion in three simple steps!
 
+### 1. Checkout the MLSync GitHub Repository
 
-### Configuration Setup
-
-Let us first set up the run environment.
-
-1. To begin, checkout this repository: `git clone https://github.com/paletteml/mlsync.git`
-2. Change to the `mlsync/examples/mlflow-notion` directory: `cd mlsync/examples/mlflow-notion/`
-3. Rename the `.env.example` file in your path: `mv .env.example .env`. This file is intended to store your personal API keys.
+1. `git clone https://github.com/paletteml/mlsync.git`
+2. `cd mlsync/examples/mlflow-notion/` : Change directory to the example directory
+3. `mv .env.example .env`: This file is intended to store your personal API keys.
 
 Note that the directory contains YAML files for configurations (`config.yaml`) and report formatting (`format.yaml`). We will leave the configurations as is for now.
 
-### ML Training Setup
+### 2. ML Training Environment
 
 Now let us set up our ML Training environment. For this example, we will rely on the [MLFlow](https://mlflow.org/) framework and Pytorch as our ML framework. Since MLFlow supports all major ML frameworks, this example can be easily adapted to other frameworks.
 
-1. If not already installed, install PyTorch based on the guide [here](https://pytorch.org/get-started/locally/). (Only needed for the provided example).
-2. Install `mlflow` package using `pip install mlflow`. More about installation [here](https://www.mlflow.org/docs/latest/quickstart.html).
-3. Run example training using `python mlflow_pytorch.py --run-name <Run 1>`. This will create a new MLFlow run.
-4. Launch MLFlow UI using `mlflow ui &`. Copy the mlflow uri (seen in the command line as `[INFO] Listening at: <URL>`). Let it run in the background.
-5. Update the `uri` field in the configuration file in your folder (`config.yaml`) under `mlflow` with the just copied mlflow uri.
+1. `pip install -r requirements.txt` : Install the requirements for this example.
+    - Note that the above step installs Pytorch. If you run into issues, please refer to the [Pytorch](https://pytorch.org/) documentation for more information.
+2. Run example training using `python mlflow_pytorch.py --run-name <name>`.
 
-### Notion Setup
+### 3. Notion Setup
 
 Let us now link Notion to MLSync. This is required only for the first time you run MLSync.
 
-1. Create a new integration to Notion.
+1. Create a **new integration** to Notion.
     1. Visit [notion.so/my-integrations](https://www.notion.so/my-integrations)
     2. Click the `+ New Integration` button
-    3. Let us name it as `MLSync`.
-    4. Ensure `Read`, `Update` and `Insert` Content Capabilities are selected.
-    5. Copy your "Internal Integration Token" from your Notion integration page into the `.env` file in your path.
+    3. Name it as `MLSync` and hit submit.
+    4. Copy your "Internal Integration Token" from your Notion integration page.
+    5. Open the `.env` file in your path and update the Notion token.
         - `NOTION_TOKEN=secret_0000000000000000000000000000000000000000000`
-2. Create a new page in Notion. This will serve as the root page for your MLFlow runs.
-    1. Click the Share button on the top right corner of the page.
-    2. Click the Invite button and then choose `MLSync` integration.
-    3. Back in the `Share` dialog, click the `Copy link` button.
-    4. Paste the URL to the `page_id` field in the configuration file (`config.yaml`) under `notion`.
+2. Create a **new page** in Notion. This will serve as the root page for your MLFlow runs.
+    1. Let us name the page as `Demo`.
+    2. Click the Share button on the top right corner of the page.
+    3. Click the Invite button and then choose `MLSync` integration.
 
-### Syncing
+### All Done
 
 You are now all set! Now let us sync your MLFlow runs to Notion.
 
 ```sh
-mlsync --config config.yaml --format format.yaml
+mlsync --config config.yaml
 ```
 
-That's it! You can now view your MLFlow runs in Notion. As long as mlsync is running, all your future experiments and runs should appear in the selected Notion page.
+First time you run, you will be prompted to choose a page to sync to.
+From the options, choose the page you created in the previous step (`Demo`).
+
+That's it! You can now view your MLFlow runs in Notion. As long as mlsync is running, all your future experiments and runs in this directory should appear in the selected Notion page.
 
 ### Troubleshooting
 
 1. If you are getting an error related to the `NOTION_TOKEN` not being found, you can pass the `--notion-token` flag to `mlsync` to specify the token.
-2. If you are seeing an error related to time out, ensure mlflow ui is running in the background.
-3. If you are having trouble with MNIST dataflow download, you can try to download the data manually from [here](www.di.ens.fr/~lelarge/MNIST.tar.gz).
+2. If you are having trouble with MNIST dataflow download, you can try to download the data manually from [here](www.di.ens.fr/~lelarge/MNIST.tar.gz).
+3. Please [contact us](mailto:support@paletteml.com) for any other issues.
 
 Please raise an issue, or reach out if you have any other errors.
 
 ### Advanced
 
 1. You can override the Notion page id, token, and other configurations by either modifying the `config.yaml` file or by passing the arguments to the `mlsync` command. Run `mlsync --help` to see the available arguments.
-2. *Custom Report Formats*: `mlsync` allows you to customize the report much further. You can customize the report by adding your own `format.yaml` file. Read documentation [here](https://mlsync.readthedocs.io/en/latest/readme.html) to learn more.
+2. *Custom Report Formats*: `mlsync` allows you to customize the report much further. You can customize the report by adding your own `format.yaml` file. Read documentation [here](https://mlsync.readthedocs.io/en/latest/topical_guides/reports.html) to learn more.
 3. *Custom Refresh Rates*: You can control the refresh rate of the report by setting the `refresh_rate` field in the configuration file.
 4. *Restarting mlsync*: You can restart mlsync any time without losing earlier runs.
 
@@ -142,7 +138,7 @@ We want to support different training environments and different productivity to
     4. [Jira](https://www.atlassian.com/software/jira): Planned
 2. Monitoring Frameworks
     1. [MLFlow](https://www.mlflow.org): **Supported**
-    2. [TensorBoard](https://www.tensorflow.org/get_started/summaries_and_tensorboard): Planned
+    2. [TensorBoard](https://www.tensorflow.org/get_started/summaries_and_tensorboard): **In progress**
     3. [ClearML](https://www.clearml.com): Planned
 3. Programmatic API
     1. Planned

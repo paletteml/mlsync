@@ -30,3 +30,14 @@ def find_key(obj, key):
     for k, v in obj.items():
         if isinstance(v,dict):
             return find_key(v, key)
+
+def url_remove_trailing_slug(url):
+    """Removes the trailing slug from a URL
+    
+    Args:
+        url (str): The URL to remove the trailing slug from.
+    """
+    url = url.split("/")
+    url.pop()
+    url = "/".join(url)
+    return url
