@@ -138,6 +138,9 @@ dmypy.json
 # mlflow
 mlruns/
 
+# tensoboard
+logs/
+
 # pytorch lightning
 .ptl/
 lightning_logs/
