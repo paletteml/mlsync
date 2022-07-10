@@ -1,44 +1,116 @@
-info:
-  # See https://www.mlflow.org/docs/latest/rest-api.html#mlflowruninfo
-  elements:
-    user_id: User
-    status: status
-    start_time: Start Time
-    end_time: End Time
-  unmatched_policy: ignore
-  notfound_policy: error
+elements:
+    # -- Information about the run -- #
+    user_id:
+        alias: User
+        type: string
+        tag: info
+        description: The user ID of the user who ran the experiment.
 
-metrics:
-  # Add all the metrics
-  elements:
-    train_loss: Train Loss
-    accuracy: Accuracy
-    final_accuracy: Final Accuracy
-    test_loss: Test Loss
-  unmatched_policy: add
-  notfound_policy: ignore
+    status:
+        alias: Status
+        type: select
+        tag: info
+        description: The status of the experiment.
+        options:
+            - FINISHED
+            - RUNNING
+            - FAILED
+            - KILLED
+            - UNFINISHED
+            - SCHEDULED
 
-params:
-  # Add the parameters
-  elements:
-    batch_size: Batch Size
-    epochs: Epochs
-    lr: Learning Rate
-    gamma: Gamma
-  unmatched_policy: add
-  notfound_policy: ignore
+    start_time:
+        alias: Start Time
+        type: timestamp
+        tag: info
+        description: The time the experiment was started.
 
-tags:
-  # Add the tags
-  elements:
-    mlflow.runName: Name
-    mlflow.note.content: Description
-  unmatched_policy: ignore
-  notfound_policy: ignore
+    end_time:
+        alias: End Time
+        type: timestamp
+        tag: info
+        description: The time the experiment was ended.
 
-# Order in which the table will be populated
+    # -- All the metrics logged during the run -- #
+    # Note: this is only final metrics
+    train_loss:
+        alias: Train Loss
+        type: float
+        tag: metrics
+        description: The training loss of the model.
+
+    accuracy:
+        alias: Accuracy
+        type: float
+        tag: metrics
+        description: The final accuracy of the model.
+
+    test_loss:
+        alias: Test Loss
+        type: float
+        tag: metrics
+        description: The test loss of the model.
+
+    # -- All the params used -- #
+    batch_size:
+        alias: Batch Size
+        type: integer
+        tag: params
+        description: The batch size of the model.
+
+    epochs:
+        alias: Epochs
+        type: integer
+        tag: params
+        description: The number of epochs to run.
+
+    lr:
+        alias: Learning Rate
+        type: float
+        tag: params
+        description: The learning rate of the model.
+
+    gamma:
+        alias: Gamma
+        type: float
+        tag: params
+        description: The gamma of the model.
+
+    # -- Tags about the run -- #
+    mlflow.runName:
+        alias: Name
+        type: string
+        tag: tags
+        description: The name of the run.
+
+    mlflow.note.content:
+        alias: Description
+        type: string
+        tag: tags
+        description: The description of the run.
+
+# Declare policies
+policies:
+    # policy if an element not listed above is found (ignore/add)
+    unmatched_policy:
+        # Set this for each tag
+        info: ignore
+        metrics: ignore
+        params: ignore
+        tags: ignore
+
+    # Policy if a listed element is not found (ignore/error)
+    notfound_policy:
+        # Set this for each tag
+        info: error
+        metrics: error
+        params: error
+        tags: error
+
+# Order in which the report will be populated
 order:
-  - Name
-  - User
-  - Start Time
-  - End Time
+    # Use the alias for each element
+    - Name
+    - User
+    - Start Time
+    - End Time

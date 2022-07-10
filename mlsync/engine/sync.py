@@ -2,9 +2,7 @@ import sys
 import os
 import time
 from mlsync.producers.mlflow.mlflow_sync import MLFlowSync
-from mlsync.consumers.notion.notion_api import NotionAPI
 from mlsync.consumers.notion.notion_sync import NotionSync
-from mlsync.consumers.notion.page_picker import pick_page
 from mlsync.engine.diff import diff
 
 
@@ -56,15 +54,10 @@ class Sync:
             if "notion_token" not in kwargs or "notion_page_id" not in kwargs:
                 raise ValueError("notion_token and notion_page_id are required for notion destination")
 
-            # Instantiate Notion API
-            self.notion_api = NotionAPI(kwargs["notion_token"])
-
-            # If notion_page_id is not provided, pick a page
-            if "notion_page_id" not in kwargs:
-                raise ValueError("notion_page_id is required for notion destination")
-
             # Instantiate Notion Sync
-            self.consumer_sync = NotionSync(notion_api=self.notion_api, root_page_id=kwargs["notion_page_id"])
+            self.consumer_sync = NotionSync(
+                notion_token=kwargs["notion_token"], root_page_id=kwargs["notion_page_id"], report_format=self.format
+            )
         else:
             raise NotImplementedError(f"Destination {consumer} not implemented.")
 

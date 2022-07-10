@@ -1,9 +1,75 @@
+import sys
+
+NOTION_COLORS = ["green", "blue", "orange", "purple", "red", "yellow", "pink"]
+NOTION_PROPERTIES = {
+    "title": {"title": {}},
+    "int": {"number": {"format": "number"}},
+    "float": {"number": {"format": "number"}},
+    "number": {"number": {"format": "number"}},
+    "rich_text": {"rich_text": {}},
+    "select": {"select": {"options": []}},
+}
+
+
 class NotionFormatter:
     """Converts reports into Notion's formats."""
 
-    def __init__(self, notion_api):
+    def __init__(self, notion_api, report_format):
         """Initialize the NotionFormatter."""
         self.notion_api = notion_api
+        self.report_format = report_format
+
+    def notion_property_type_conversion(self, val_type):
+        """
+        Convert the type of a property to a Notion type.
+
+        Args:
+            val_type (str): The type of the property.
+        """
+        if val_type == "float" or val_type == "int" or val_type == "integer":
+            return "number"
+        elif val_type == "str" or val_type == "string":
+            return "rich_text"
+        # TODO: convert timestamp to Notion readable format
+        elif val_type == "timestamp":
+            return "rich_text"
+        else:
+            return val_type
+
+    def get_notion_property(self, property_type, metadata):
+        """
+        Get the Notion property for a given property type and name.
+
+        Args:
+            property_type (str): The type of the property.
+            metadata (dict): The metadata of the property.
+        """
+        # Change the synonyms of the properties
+        property_type = self.notion_property_type_conversion(property_type)
+
+        if property_type in NOTION_PROPERTIES:
+            notion_property = NOTION_PROPERTIES[property_type]
+            # Some special cases require extra information
+            if property_type == "select":
+                notion_property["select"]["options"] = [
+                    {"name": option, "color": NOTION_COLORS[i % len(NOTION_COLORS)]}
+                    for i, option in enumerate(metadata)
+                ]
+        else:
+            sys.exit("Unknwon type of property: {0}".format(property_type))
+
+        return notion_property
+
+    def create_notion_property(self, property_type, metadata):
+        """
+        Create a Notion property for a given property type and name.
+
+        Args:
+            property_type (str): The type of the property.
+            metadata (dict): The metadata of the property.
+        """
+        # Change the synonyms of the properties
+        property_type = self.notion_property_type_conversion(property_type)
 
         def create_title_property(title):
             return {"title": [{"text": {"content": title}}]}
@@ -21,51 +87,41 @@ class NotionFormatter:
         def create_rich_text_property(param):
             return {"rich_text": [{"text": {"content": param}}]}
 
-        # TODO: Obtain this from report format
-        self.properties = {
-            "predefined": {
-                "Name": {"title": {}},
-                "User": {"rich_text": {}},
-                "status": {
-                    "select": {
-                        "options": [
-                            {"name": "FINISHED", "color": "green"},
-                            {"name": "FAILED", "color": "red"},
-                            {"name": "RUNNING", "color": "green"},
-                            {"name": "SCHEDULED", "color": "purple"},
-                            {"name": "KILLED", "color": "pink"},
-                            {"name": "UNFINISHED", "color": "orange"},
-                        ]
-                    }
-                },
-            },
-            "undefined": {
-                int: {"number": {"format": "number"}},
-                float: {"number": {"format": "number"}},
-                str: {"rich_text": {}},
-            },
-        }
-        self.row_property = {
-            "predefined": {
-                "Name": create_title_property,
-                "User": create_rich_text_property,
-                "status": create_select_property,
-            },
-            "undefined": {
-                int: create_number_property,
-                float: create_number_property,
-                str: create_rich_text_property,
-            },
-        }
+        if property_type == "title":
+            return create_title_property(metadata)
+        elif property_type == "select":
+            return create_select_property(metadata)
+        elif property_type == "number" or property_type == "float" or property_type == "int":
+            return create_number_property(metadata)
+        elif property_type == "rich_text":
+            return create_rich_text_property(metadata)
+        else:
+            sys.exit("Unknwon type of property: {0}".format(property_type))
 
-    def format_out(self, report, properties=None, row_property=None):
+    # Read the property
+    def read_notion_property(self, property_object):
+        """ Read Notion property from its quirky format to a readable format.
+        
+        Args:
+            property_object (dict): The Notion property.
+        """
+        if property_object["type"] == "rich_text":
+            return property_object["rich_text"][0]["text"]["content"]
+        elif property_object["type"] == "number":
+            return property_object["number"]
+        elif property_object["type"] == "title":
+            return property_object["title"][0]["text"]["content"]
+        elif property_object["type"] == "select":
+            return property_object["select"]["name"]
+        else:
+            sys.exit("Unknown property type: " + property_object["type"])
+
+    def format_out(self, report):
         """
         Convert mlsync report into a Notion table.
 
         Args:
-            report (dict): The mlflow report. Format is derived from the report format file.
-            properties (dict): The properties of the database.
-            row_property (dict): The properties of the page.
+            report (dict): The mlsync report. Format is derived from the report format file.
         """
         # Convert MLSync report into a Notion table
         notion_report = {}
@@ -75,43 +131,39 @@ class NotionFormatter:
             experiment_report = {}
 
             # 1. First create the properties of the database
-            properties = self.properties if (properties is None) else properties
-            # Update the properties with the metrics
             experiment_property = {}
             # Go through all the runs to create a superset of the properties
             for run_id, run in experiment["runs"].items():
                 for key, value in run.items():
                     # Add only newly encountered properties
                     if key not in experiment_property:
-                        if key in properties["predefined"]:
-                            experiment_property[key] = properties["predefined"][key]
-                        elif type(value) in properties["undefined"]:
-                            experiment_property[key] = properties["undefined"][type(value)]
+                        # Check the type of the element
+                        val_type = 'title' if (key == 'Name') else value['type']
+                        # Metadata needed for some types of properties
+                        if val_type == "select":
+                            metadata = value["options"]
                         else:
-                            sys.exit("Unknwon type of property: {0} or key: {1}".format(type(value), key))
+                            metadata = None
+                        experiment_property[key] = self.get_notion_property(val_type, metadata)
 
             # Add the properties to the experiment report
             experiment_report["properties"] = experiment_property
 
             # 2. Then create the rows of the database
-            row_property = self.row_property if (row_property is None) else row_property
             run_properties = {}
-            for run_id, run in experiment["runs"].items():
+            for run_uid, run in experiment["runs"].items():
                 run_property = {}
                 for key, value in run.items():
-                    if key in row_property["predefined"]:
-                        run_property[key] = row_property["predefined"][key](value)
-                    elif type(value) in row_property["undefined"]:
-                        run_property[key] = row_property["undefined"][type(value)](value)
-                    else:
-                        sys.exit("Unknwon type of property: {0} or key: {1}".format(type(value), key))
+                    # Update value type if needed
+                    val_type = 'title' if (key == 'Name') else value['type']
+                    run_property[key] = self.create_notion_property(val_type, value['value'])
 
                 # Any missing properties are set to None TODO
                 # for property_key in experiment_property:
                 #     if property_key not in run_property:
                 #         run_property[property_key] = row_property['None']
 
-                run_properties[run_id] = run_property
+                run_properties[run_uid] = run_property
             # Add the runs to the experiment report
             experiment_report["rows"] = run_properties
 
@@ -129,23 +181,14 @@ class NotionFormatter:
         state = {}
         report = {}
 
-        # Read the property
-        def read_property(property_object):
-            if property_object["type"] == "rich_text":
-                return property_object["rich_text"][0]["text"]["content"]
-            elif property_object["type"] == "number":
-                return property_object["number"]
-            elif property_object["type"] == "title":
-                return property_object["title"][0]["text"]["content"]
-            elif property_object["type"] == "select":
-                return property_object["select"]["name"]
-            else:
-                sys.exit("Unknown property type: " + property_object["type"])
+        # TODO: Make the result of this more similar to MLSync report.
 
         # Search through the databases to find all the pages
         for database in notion_report["results"]:
+            # Make sure the database is in the root page
             if database["parent"]["page_id"] != root_page_id:
                 continue
+            # If database is not empty
             if database["title"]:
                 # Get name and id of the database
                 database_name = database["title"][0]["text"]["content"]
@@ -158,20 +201,21 @@ class NotionFormatter:
                 }
                 # update notion state
                 state[database_name] = {"database_id": database_id, "pages": {}}
-                # Get all the pages in the database
+
+                # Get all the pages (runs) in the database
                 pages = self.notion_api.readDatabase(database_id)
                 pages = pages["results"] if (pages) else []
                 # All the rows
                 for page in pages:
                     page_id = page["id"]
-                    page_name = read_property(page["properties"]["Name"])
+                    page_uid = self.read_notion_property(page["properties"]["uid"])
                     page_properties = {}
                     for page_property_name, page_property in page["properties"].items():
-                        page_properties[page_property_name] = read_property(page_property)
+                        page_properties[page_property_name] = self.read_notion_property(page_property)
                     # update notion state
-                    state[database_name]["pages"][page_name] = {"page_id": page_id}
+                    state[database_name]["pages"][page_uid] = {"page_id": page_id}
 
-                    experiment_report["runs"][page_name] = page_properties
+                    experiment_report["runs"][page_uid] = page_properties
 
                 # Update mlflow report
                 report[database_name] = experiment_report

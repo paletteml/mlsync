@@ -17,11 +17,15 @@ def diff(report_old, report_new):
     diff_experiment_report = {"new": {}, "deleted": {}, "updated": {}}
     # Only if the reports dont match, we will generate the diff
     if report_old != report_new:
+
         # Step 1: Compare the old and the new experiments
         for experiment_name in report_old:
+
             # If the experiment is not in the new report, then it is deleted
             if experiment_name not in report_new:
-                diff_experiment_report["deleted"][experiment_name] = experiment_name
+                # Add all the runs to the deleted list
+                diff_experiment_report["deleted"][experiment_name] = {"deleted": list(report_old[experiment_name]["runs"].keys())}
+
             # If the experiment is in the new report, then we will compare the runs
             else:
                 experiment_new = report_new[experiment_name]
@@ -53,6 +57,7 @@ def diff(report_old, report_new):
                         # Other case is captured above
                     # Add to updated experiments
                     diff_experiment_report["updated"][experiment_name] = diff_run_report
+
         # Compare the new and the old experiments
         for experiment_name in report_new:
             # If the experiment is not in the old report, then it is added

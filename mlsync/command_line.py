@@ -199,3 +199,6 @@ def main():
 
     # Run the sync process   
     sync_instance.sync(refresh_rate=refresh_rate)
+
+if __name__ == "__main__":
+    main()

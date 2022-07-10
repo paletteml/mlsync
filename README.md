@@ -28,6 +28,13 @@ ______________________________________________________________________
 
 MLSync is a Python library that acts as a bridge between your ML workflow and your project planning and management tools.
 
+## Installation
+
+```sh
+pip install mlsync
+```
+
+
 ### Why MLSync?
 
 Developing ML projects is a lot of fun, but they are also hard to plan and manage.
@@ -55,31 +62,23 @@ The above figure shows the  high-level architecture of MLSync.
 All the functionality is not yet available; please refer to the [Roadmap](#roadmap) for the current status.
 If you would like to contribute to MLSync, please refer to the [Contributing](#contributing) section.
 
-## Installation
+## Example
+
+In this example, we will sync your machine learning experiments to Notion in three simple steps!
+
+### 1. Install MLSync
 
 ```sh
 pip install mlsync
 ```
 
-## Example
+### 2. Setup the Example
 
-In this example, we will sync your machine learning experiments to Notion in three simple steps!
-
-### 1. Checkout the MLSync GitHub Repository
-
-1. `git clone https://github.com/paletteml/mlsync.git`
-2. `cd mlsync/examples/mlflow-notion/` : Change directory to the example directory
-3. `mv .env.example .env`: This file is intended to store your personal API keys.
-
-Note that the directory contains YAML files for configurations (`config.yaml`) and report formatting (`format.yaml`). We will leave the configurations as is for now.
-
-### 2. ML Training Environment
-
-Now let us set up our ML Training environment. For this example, we will rely on the [MLFlow](https://mlflow.org/) framework and Pytorch as our ML framework. Since MLFlow supports all major ML frameworks, this example can be easily adapted to other frameworks.
-
-1. `pip install -r requirements.txt` : Install the requirements for this example.
+1. `git clone https://github.com/paletteml/mlsync.git`: Checkout the MLSync repository.
+2. `cd mlsync/examples/mlflow-notion/`: Change directory to the example directory
+3. `pip install -r requirements.txt` : Install the requirements for this example.
     - Note that the above step installs Pytorch. If you run into issues, please refer to the [Pytorch](https://pytorch.org/) documentation for more information.
-2. Run example training using `python mlflow_pytorch.py --run-name <name>`.
+4. Run example training using `python mlflow_pytorch.py --run-name <name>`. Make sure it runs (Need not complete the run).
 
 ### 3. Notion Setup
 
@@ -87,7 +86,7 @@ Let us now link Notion to MLSync. This is required only for the first time you r
 
 1. Create a **new integration** to Notion.
     1. Visit [notion.so/my-integrations](https://www.notion.so/my-integrations)
-    2. Click the `+ New Integration` button
+    2. Click the `+ New Integration` button.
     3. Name it as `MLSync` and hit submit.
     4. Copy your "Internal Integration Token" from your Notion integration page.
     5. Open the `.env` file in your path and update the Notion token.
@@ -105,10 +104,15 @@ You are now all set! Now let us sync your MLFlow runs to Notion.
 mlsync --config config.yaml
 ```
 
-First time you run, you will be prompted to choose a page to sync to.
+{% note %}
+
+**Note:** First time you run, you will be prompted to choose a page to sync to.
 From the options, choose the page you created in the previous step (`Demo`).
 
-That's it! You can now view your MLFlow runs in Notion. As long as mlsync is running, all your future experiments and runs in this directory should appear in the selected Notion page.
+{% endnote %}
+
+That's it! You can now view your MLFlow runs in Notion. As long as mlsync is running in the background,
+all your future experiments and runs in this directory should appear in the selected Notion page.
 
 ### Troubleshooting
 
