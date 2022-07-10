@@ -12,6 +12,14 @@ mlsync.producers.mlflow.mlflow\_api module
    :undoc-members:
    :show-inheritance:
 
+mlsync.producers.mlflow.mlflow\_formatter module
+------------------------------------------------
+
+.. automodule:: mlsync.producers.mlflow.mlflow_formatter
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mlsync.producers.mlflow.mlflow\_sync module
 -------------------------------------------
 

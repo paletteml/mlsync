@@ -139,7 +139,7 @@ def main():
 
     # MLFlow Tracking
     # mlflow.set_tracking_uri("http://127.0.0.1:5000")
-    mlflow.set_experiment("MNIST_NEW")
+    mlflow.set_experiment("MNIST")
     with mlflow.start_run(run_name=args.run_name, description="MNIST CNN Model"):
         # log all the hyperparameters
         for key, value in vars(args).items():

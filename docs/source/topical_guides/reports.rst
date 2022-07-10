@@ -2,46 +2,38 @@
 Formatting Reports
 ===================
 
-MLSync allows you to format your reports in a variety of ways. Every run has the following key properties:
+MLSync allows you to customize your reports via `format.yaml` file passed as `mlsync --format <format.yaml>`.
 
-1. **Run Infomation:** This includes details such as the name of the run, user who ran it, the date/time it was run, etc., depending on the 
-2. **Run Metrics:** This includes the metrics of the run (e.g. accuracy, precision, recall, etc.).
-3. **Run Params:** This includes the parameters of the run (e.g. the hyperparameters, the model parameters, etc.).
-4. **Run Tags:** This includes any other tags you may have added to the run.
+Each format file is a YAML file with following possible list of entries.
 
-The goal of this section is to show you how you can control the above properties in your reports.
+1. `elements`: Describes the elements logged. Each element can have the following fields:
+    a. `tag`: You can use this tag to identify a group of elements. It can further be used to change specific settings.
+    b. `type`: Type of the element. Can be one of the following:
+        i. `string`: String element.
+        ii. `number`: Number element.
+        iii. `boolean`: Boolean element.
+        iv. `date`: Date element.
+        v. `object`: Object element.
+        vi. `array`: Array element.
+    c. `alias`: Alias of the element. This is how the element is referred in the report.
+    d. `description`: Description of the element.
+2. `policies`: This field describes settings, which can be set for different tags. Following are the settings:
+    a. `unmatched_policy`: Policy for unmatched elements. Can be one of the following:
+        i. `ignore`: Ignore unmatched elements.
+        ii. `add`: Add unmatched elements to the report.
+    b. `notfound_policy`: Policy for not found elements. Can be one of the following:
+        i. `ignore`: Ignore not found elements.
+        iii. `error`: Error about not found elements.
 
-For each property, we have the following template in the report::
+    Each of these policies can be set for different tags. For example::
 
-    property_name
-        elements:
-            element_name : element_alias
-            element_name : element_alias
-            element_name : element_alias
-        unmatched_policy: ignore/add
-        notfound_policy: ignore/error
-
-
-++++++++++++++++++++++++
-**Field Descriptions:**
-++++++++++++++++++++++++
-
-1. ``property_name`` is the name of the property
-2. ``elements`` is a list of elements you would like to include in the report that is a part of the property.
-3. ``element_name`` is the name of the element
-4. ``element_alias`` is the alias of the element, i.e., how you would like it to be named in the report.
-5. ``unmatched_policy`` is the policy for handling unmatched elements. ``ignore`` will ignore the unmatched element, ``add`` will add the unmatched element to the report.
-6. ``notfound_policy`` is the policy for handling elements that are not found in the run. ``ignore`` will ignore the element, ``error`` will error out.
-
-Repeat the above for each property to complete the report.
-
-
-++++++++++++++++++++++++
-**Ordering in Report:**
-++++++++++++++++++++++++
-
-In case you want to order the elements in the report, you can do so by adding a ``order`` key to the element. 
-The ``order`` key is a list of element names in the order you want them to appear in the report.::
+        notfound_policy:
+            # Set this for each tag
+            info: error
+            metrics: error
+            params: error
+            tags: error
+3. `order`: In case you want to order the elements in the report, you can do so by adding a ``order`` key to the element. The ``order`` key is a list of element names in the order you want them to appear in the report.::
 
     order:
         - element_name
@@ -54,47 +46,119 @@ The ``order`` key is a list of element names in the order you want them to appea
 
 Here is an example of a report::
 
-    info:
-        # See https://www.mlflow.org/docs/latest/rest-api.html#mlflowruninfo
-        elements:
-            user_id: User
-            status: status
-            start_time: Start Time
-            end_time: End Time
-        unmatched_policy: ignore
-        notfound_policy: error
+    elements:
+        # -- Information about the run -- #
+        user_id:
+            alias: User
+            type: string
+            tag: info
+            description: The user ID of the user who ran the experiment.
 
-    metrics:
-        # Add all the metrics
-        elements:
-            train_loss: Train Loss
-            accuracy: Accuracy
-            final_accuracy: Final Accuracy
-            test_loss: Test Loss
-        unmatched_policy: add
-        notfound_policy: ignore
+        status:
+            alias: Status
+            type: select
+            tag: info
+            description: The status of the experiment.
+            options:
+                - FINISHED
+                - RUNNING
+                - FAILED
+                - KILLED
+                - UNFINISHED
+                - SCHEDULED
 
-    params:
-        # Add the parameters
-        elements:
-            batch_size: Batch Size
-            epochs: Epochs
-            lr: Learning Rate
-            gamma: Gamma
-        unmatched_policy: add
-        notfound_policy: ignore
+        start_time:
+            alias: Start Time
+            type: timestamp
+            tag: info
+            description: The time the experiment was started.
 
-    tags:
-        # Add the tags
-        elements:
-            mlflow.runName: Name
-            mlflow.note.content: Description
-        unmatched_policy: ignore
-        notfound_policy: ignore
+        end_time:
+            alias: End Time
+            type: timestamp
+            tag: info
+            description: The time the experiment was ended.
 
-    # Order in which the table will be populated
+        # -- All the metrics logged during the run -- #
+        # Note: this is only final metrics
+        train_loss:
+            alias: Train Loss
+            type: float
+            tag: metrics
+            description: The training loss of the model.
+
+        accuracy:
+            alias: Accuracy
+            type: float
+            tag: metrics
+            description: The final accuracy of the model.
+
+        test_loss:
+            alias: Test Loss
+            type: float
+            tag: metrics
+            description: The test loss of the model.
+
+        # -- All the params used -- #
+        batch_size:
+            alias: Batch Size
+            type: integer
+            tag: params
+            description: The batch size of the model.
+
+        epochs:
+            alias: Epochs
+            type: integer
+            tag: params
+            description: The number of epochs to run.
+
+        lr:
+            alias: Learning Rate
+            type: float
+            tag: params
+            description: The learning rate of the model.
+
+        gamma:
+            alias: Gamma
+            type: float
+            tag: params
+            description: The gamma of the model.
+
+        # -- Tags about the run -- #
+        mlflow.runName:
+            alias: Name
+            type: string
+            tag: tags
+            description: The name of the run.
+
+        mlflow.note.content:
+            alias: Description
+            type: string
+            tag: tags
+            description: The description of the run.
+
+    # Declare policies
+    policies:
+        # policy if an element not listed above is found (ignore/add)
+        unmatched_policy:
+            # Set this for each tag
+            info: ignore
+            metrics: ignore
+            params: ignore
+            tags: ignore
+
+        # Policy if a listed element is not found (ignore/error)
+        notfound_policy:
+            # Set this for each tag
+            info: error
+            metrics: error
+            params: error
+            tags: error
+
+    # Order in which the report will be populated
     order:
-       - Name
-       - User
-       - Start Time
-       - End Time
+        # Use the alias for each element
+        - Name
+        - User
+        - Start Time
+        - End Time
