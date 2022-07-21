@@ -70,7 +70,16 @@ def main():
         type=str,
         help="Notion page ID",
     )
-
+    parser.add_argument(
+        "--mlsync-cloud-token",
+        type=str,
+        help="MLSync Cloud token",
+    )
+    parser.add_argument(
+        "--mlsync-cloud-uri",
+        type=str,
+        help="MLSync Cloud URI",
+    ) 
     # Parse Arguments
     args = parser.parse_args()
 
@@ -142,7 +151,7 @@ def main():
             notion_token = os.getenv("NOTION_TOKEN")
         # Make sure the token is set
         if notion_token is None:
-            raise ValueError("NOTION_TOKEN is not set")
+            notion_token = input("Enter your Notion token: ")
         # Add to kwargs
         kwargs["notion_token"] = notion_token
 
@@ -173,6 +182,33 @@ def main():
             raise ValueError("NOTION_PAGE_ID is not set")
         # Add to kwargs
         kwargs["notion_page_id"] = notion_page_id
+    
+    elif args.consumer == "mlsync-cloud":
+        # MLSync Cloud Token (Never store this anywhere)
+        # 1. First preference, command line
+        if args.mlsync_cloud_token:
+            mlsync_cloud_token = args.mlsync_cloud_token
+        # 2. Second preference, config file
+        elif "token" in configs["mlsync-cloud"]:
+            mlsync_cloud_token = configs["mlsync-cloud"]["token"]
+        else:
+            mlsync_cloud_token = os.getenv("MLSYNC_CLOUD_TOKEN")
+        # Make sure the token is set
+        if mlsync_cloud_token is None:
+            mlsync_cloud_token = input("Enter your MLSync Cloud token: ")
+        # Add to kwargs
+        kwargs["mlsync_cloud_token"] = mlsync_cloud_token
+        # MLSync Cloud URI
+        # 1. First preference, command line
+        if args.mlsync_cloud_uri:
+            mlsync_cloud_uri = args.mlsync_cloud_uri
+            configs["mlsync-cloud"]["uri"] = mlsync_cloud_uri
+        # 2. Second preference, config file
+        elif configs["mlsync-cloud"]["uri"]:
+            mlsync_cloud_uri = configs["mlsync-cloud"]["uri"]
+        else:
+            mlsync_cloud_uri = input("Enter your MLSync Cloud URI: ")
+        kwargs["mlsync_cloud_uri"] = mlsync_cloud_uri
     else:
         raise ValueError(f"Consumer {args.consumer} not supported")
 

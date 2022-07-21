@@ -3,6 +3,7 @@ import os
 import time
 from mlsync.producers.mlflow.mlflow_sync import MLFlowSync
 from mlsync.consumers.notion.notion_sync import NotionSync
+from mlsync.consumers.mlsync_cloud.mlsync_cloud_sync import MLSyncCloudSync
 from mlsync.engine.diff import diff
 
 
@@ -57,6 +58,16 @@ class Sync:
             # Instantiate Notion Sync
             self.consumer_sync = NotionSync(
                 notion_token=kwargs["notion_token"], root_page_id=kwargs["notion_page_id"], report_format=self.format
+            )
+        elif consumer == "mlsync-cloud":
+            # Make sure mlsync_cloud_token is provided
+            if "mlsync_cloud_token" not in kwargs:
+                raise ValueError("mlsync_cloud_token is required for mlsync_cloud destination")
+            # Instantiate MLSync Cloud
+            self.consumer_sync = MLSyncCloudSync(
+                mlsync_token=kwargs["mlsync_cloud_token"],
+                mlsync_url=kwargs["mlsync_cloud_uri"],
+                report_format=self.format,
             )
         else:
             raise NotImplementedError(f"Destination {consumer} not implemented.")

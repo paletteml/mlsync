@@ -2,6 +2,8 @@ mlflow:
   format: format.yaml
   report_format: null
   uri: http://127.0.0.1:5000
+mlsync-cloud:
+  uri: http://127.0.0.1:8000/mlsync
 notion:
   page_id: 18641cfe-6a05-4647-b3a8-4e72d66395ef
 refresh_rate: 1
