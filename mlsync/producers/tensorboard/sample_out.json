@@ -1,0 +1,142 @@
+{
+  "MNIST": {
+    "id": "1",
+    "name": "MNIST",
+    "artifact_location": "file:///Users/dhirajk/Desktop/Coding/ml-sync/mlsync/mlsync/producers/mlflow/mlruns/1",
+    "lifecycle_stage": "active",
+    "runs": {
+      "84a5f2363cf5467c830812e874ff04b9": {
+        "User": {
+          "alias": "User",
+          "type": "string",
+          "tag": "info",
+          "description": "The user ID of the user who ran the experiment.",
+          "key": "user_id",
+          "value": "dhirajk"
+        },
+        "Status": {
+          "alias": "Status",
+          "type": "select",
+          "tag": "info",
+          "description": "The status of the experiment.",
+          "options": [
+            "FINISHED",
+            "RUNNING",
+            "FAILED",
+            "KILLED",
+            "UNFINISHED",
+            "SCHEDULED"
+          ],
+          "key": "status",
+          "value": "FINISHED"
+        },
+        "Start Time": {
+          "alias": "Start Time",
+          "type": "timestamp",
+          "tag": "info",
+          "description": "The time the experiment was started.",
+          "key": "start_time",
+          "value": "Sun, 22 Sep 12:50:19"
+        },
+        "End Time": {
+          "alias": "End Time",
+          "type": "timestamp",
+          "tag": "info",
+          "description": "The time the experiment was ended.",
+          "key": "end_time",
+          "value": "Mon, 23 Sep 09:15:28"
+        },
+        "Train Loss": {
+          "alias": "Train Loss",
+          "type": "float",
+          "tag": "metrics",
+          "description": "The training loss of the model.",
+          "key": "train_loss",
+          "value": 0.07044237001959863,
+          "data": null
+        },
+        "Accuracy": {
+          "alias": "Accuracy",
+          "type": "float",
+          "tag": "metrics",
+          "description": "The final accuracy of the model.",
+          "key": "accuracy",
+          "value": 98.81,
+          "data": null
+        },
+        "Test Loss": {
+          "alias": "Test Loss",
+          "type": "float",
+          "tag": "metrics",
+          "description": "The test loss of the model.",
+          "key": "test_loss",
+          "value": 0.035720470213890076,
+          "data": null
+        },
+        "Gamma": {
+          "alias": "Gamma",
+          "type": "float",
+          "tag": "params",
+          "description": "The gamma of the model.",
+          "key": "gamma",
+          "value": 0.7,
+          "data": null
+        },
+        "Epochs": {
+          "alias": "Epochs",
+          "type": "integer",
+          "tag": "params",
+          "description": "The number of epochs to run.",
+          "key": "epochs",
+          "value": 2,
+          "data": null
+        },
+        "Batch Size": {
+          "alias": "Batch Size",
+          "type": "integer",
+          "tag": "params",
+          "description": "The batch size of the model.",
+          "key": "batch_size",
+          "value": 64,
+          "data": null
+        },
+        "Learning Rate": {
+          "alias": "Learning Rate",
+          "type": "float",
+          "tag": "params",
+          "description": "The learning rate of the model.",
+          "key": "lr",
+          "value": 1.0,
+          "data": null
+        },
+        "Name": {
+          "alias": "Name",
+          "type": "string",
+          "tag": "tags",
+          "description": "The name of the run.",
+          "key": "mlflow.runName",
+          "value": "run_name",
+          "data": null
+        },
+        "Description": {
+          "alias": "Description",
+          "type": "string",
+          "tag": "tags",
+          "description": "The description of the run.",
+          "key": "mlflow.note.content",
+          "value": "MNIST CNN Model",
+          "data": null
+        },
+        "uid": {
+          "alias": "id",
+          "type": "string",
+          "tag": "info",
+          "key": "id",
+          "description": "The unique ID of the run",
+          "value": "84a5f2363cf5467c830812e874ff04b9",
+          "data": null
+        }
+      }
+    }
+  }
+}

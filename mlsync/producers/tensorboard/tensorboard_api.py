@@ -61,8 +61,9 @@ if __name__ == "__main__":
     tbRoot = "http://127.0.0.1:6006"
     tensorboardAPI = TensorBoardAPI(tbRoot)
     experiments = tensorboardAPI.getExperiments()
-    print(experiments)
     runs = tensorboardAPI.getRuns()
-    run_scalars = tensorboardAPI.getRunScalars(runs[0])
-    for scalar in run_scalars:
-        print(tensorboardAPI.getRunScalar(runs[0], scalar))
+    for run in runs:
+        print(f"Run: {run}\n")
+        run_scalars = tensorboardAPI.getRunScalars(run)
+        for scalar in run_scalars:
+            print(f"{scalar}: \n{tensorboardAPI.getRunScalar(run, scalar)}\n")

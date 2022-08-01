@@ -1,0 +1,47 @@
+elements:
+  start_time:
+    alias: Start Time
+    type: timestamp
+    tag: info
+    description: The time the experiment was started.
+
+  end_time:
+    alias: End Time
+    type: timestamp
+    tag: info
+    description: The time the experiment was ended.
+
+  # -- All the metrics logged during the run -- #
+  # Note: this is only final metrics
+
+  accuracy:
+    alias: Accuracy
+    type: float
+    tag: metrics
+    description: The final accuracy of the model.
+
+# Declare policies
+policies:
+  # policy if an element not listed above is found (ignore/add)
+  unmatched_policy:
+    # Set this for each tag
+    info: ignore
+    metrics: ignore
+    params: ignore
+    tags: ignore
+
+  # Policy if a listed element is not found (ignore/error)
+  notfound_policy:
+    # Set this for each tag
+    info: error
+    metrics: error
+    params: error
+    tags: error
+
+# Order in which the report will be populated
+order:
+  # Use the alias for each element
+  - Name
+  - User
+  - Start Time
+  - End Time

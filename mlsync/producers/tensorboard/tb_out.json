@@ -1,0 +1,178 @@
+{
+  "logs/TEST/fit/20220731-185424/train": {
+    "Start Time": {
+      "alias": "Start Time",
+      "type": "timestamp",
+      "tag": "info",
+      "description": "The time the experiment was started.",
+      "key": "start_time",
+      "value": null
+    },
+    "End Time": {
+      "alias": "End Time",
+      "type": "timestamp",
+      "tag": "info",
+      "description": "The time the experiment was ended.",
+      "key": "end_time",
+      "value": null
+    },
+    "Accuracy": {
+      "alias": "Accuracy",
+      "type": "float",
+      "tag": "metrics",
+      "description": "The final accuracy of the model.",
+      "key": "accuracy",
+      "value": null
+    },
+    "Name": {
+      "alias": "Name",
+      "type": "string",
+      "tag": "info",
+      "key": "Name",
+      "description": "The name of the run",
+      "value": "Run 0",
+      "data": null
+    },
+    "uid": {
+      "alias": "id",
+      "type": "string",
+      "tag": "info",
+      "key": "id",
+      "description": "The unique ID of the run",
+      "value": "logs/TEST/fit/20220731-185424/train",
+      "data": null
+    }
+  },
+  "logs/TEST/fit/20220731-185424/validation": {
+    "Start Time": {
+      "alias": "Start Time",
+      "type": "timestamp",
+      "tag": "info",
+      "description": "The time the experiment was started.",
+      "key": "start_time",
+      "value": null
+    },
+    "End Time": {
+      "alias": "End Time",
+      "type": "timestamp",
+      "tag": "info",
+      "description": "The time the experiment was ended.",
+      "key": "end_time",
+      "value": null
+    },
+    "Accuracy": {
+      "alias": "Accuracy",
+      "type": "float",
+      "tag": "metrics",
+      "description": "The final accuracy of the model.",
+      "key": "accuracy",
+      "value": null
+    },
+    "Name": {
+      "alias": "Name",
+      "type": "string",
+      "tag": "info",
+      "key": "Name",
+      "description": "The name of the run",
+      "value": "Run 1",
+      "data": null
+    },
+    "uid": {
+      "alias": "id",
+      "type": "string",
+      "tag": "info",
+      "key": "id",
+      "description": "The unique ID of the run",
+      "value": "logs/TEST/fit/20220731-185424/validation",
+      "data": null
+    }
+  },
+  "logs/TEST/gradient_tape/20220731-185448/test": {
+    "Start Time": {
+      "alias": "Start Time",
+      "type": "timestamp",
+      "tag": "info",
+      "description": "The time the experiment was started.",
+      "key": "start_time",
+      "value": null
+    },
+    "End Time": {
+      "alias": "End Time",
+      "type": "timestamp",
+      "tag": "info",
+      "description": "The time the experiment was ended.",
+      "key": "end_time",
+      "value": null
+    },
+    "Accuracy": {
+      "alias": "Accuracy",
+      "type": "float",
+      "tag": "metrics",
+      "description": "The final accuracy of the model.",
+      "key": "accuracy",
+      "value": 0.9803000092506409
+    },
+    "Name": {
+      "alias": "Name",
+      "type": "string",
+      "tag": "info",
+      "key": "Name",
+      "description": "The name of the run",
+      "value": "Run 2",
+      "data": null
+    },
+    "uid": {
+      "alias": "id",
+      "type": "string",
+      "tag": "info",
+      "key": "id",
+      "description": "The unique ID of the run",
+      "value": "logs/TEST/gradient_tape/20220731-185448/test",
+      "data": null
+    }
+  },
+  "logs/TEST/gradient_tape/20220731-185448/train": {
+    "Start Time": {
+      "alias": "Start Time",
+      "type": "timestamp",
+      "tag": "info",
+      "description": "The time the experiment was started.",
+      "key": "start_time",
+      "value": null
+    },
+    "End Time": {
+      "alias": "End Time",
+      "type": "timestamp",
+      "tag": "info",
+      "description": "The time the experiment was ended.",
+      "key": "end_time",
+      "value": null
+    },
+    "Accuracy": {
+      "alias": "Accuracy",
+      "type": "float",
+      "tag": "metrics",
+      "description": "The final accuracy of the model.",
+      "key": "accuracy",
+      "value": 0.9857000112533569
+    },
+    "Name": {
+      "alias": "Name",
+      "type": "string",
+      "tag": "info",
+      "key": "Name",
+      "description": "The name of the run",
+      "value": "Run 3",
+      "data": null
+    },
+    "uid": {
+      "alias": "id",
+      "type": "string",
+      "tag": "info",
+      "key": "id",
+      "description": "The unique ID of the run",
+      "value": "logs/TEST/gradient_tape/20220731-185448/train",
+      "data": null
+    }
+  }
+}
