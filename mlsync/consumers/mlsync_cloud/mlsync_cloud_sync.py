@@ -19,17 +19,44 @@ class MLSyncCloudSync:
 
     def pull(self, project_name="default"):
         """Fetch the current state of the Notion page and return report in mlsync format."""
+        # Update the state and report
+        report = {}
 
-        # Get all the projects from mlsync
-        projects = self.mlsync_cloud_api.getProjects()
-        if(project_name in projects):
-            # Get all the current databases
-            databases = self.mlsync_cloud_api.getAllDatabases()
+        # Find an existing project or create a new one
+        project_id = self.mlsync_cloud_api.findProject(project_name)
+        if project_id is None:
+            project_id = self.mlsync_cloud_api.createProject(project_name, properties={})
+        # Convert project id to string
+        project_id = str(project_id)
 
-            # Update notion state
-            self.mlsync_cloud_state = state
-        else:
-            report = {}
+        # Add to state (if not already there)
+        if project_name not in self.mlsync_cloud_state:
+            self.mlsync_cloud_state[project_name] = {"project_id": project_id, "experiments": {}}
+        # Get all the experiments
+        experiments = self.mlsync_cloud_api.getExperiments(project_id)
+        # For each experiment, get all the runs
+        for experiment in experiments:
+            # Get experiment name and id
+            experiment_name, experiment_id = experiment["name"], str(experiment["id"])
+            # Add to state (if not already there) and report
+            if experiment_name not in self.mlsync_cloud_state[project_name]["experiments"]:
+                self.mlsync_cloud_state[project_name]["experiments"][experiment_name] = {
+                    "experiment_db_id": experiment_id,
+                    "runs": {},
+                }
+            report[experiment_name] = {'id': experiment_id, 'runs': {}}
+            # Get all the runs
+            runs = self.mlsync_cloud_api.getRuns(project_id, experiment_id)
+            # For each run, get the metrics
+            for run in runs:
+                # Get run name and id
+                run_uid, run_id = run["run_id"], run["id"]
+                # Add to state (if not already there) and report
+                if run_uid not in self.mlsync_cloud_state[project_name]["experiments"][experiment_name]["runs"]:
+                    self.mlsync_cloud_state[project_name]["experiments"][experiment_name]["runs"][run_uid] = {
+                        "run_db_id": run_id,
+                    }
+                report[experiment_name]['runs'][run_uid] = {**run['metrics']}
 
         return report
 
@@ -41,11 +68,18 @@ class MLSyncCloudSync:
             command (str): The command to execute, It can be "new", "create", "update" or "delete"
             diff_report (dict): The diff report describing the changes to be made.
         """
+        # Find an existing project or create a new one
+        project_id = self.mlsync_cloud_api.findProject(project_name)
+        if project_id is None:
+            project_id = self.mlsync_cloud_api.createProject(project_name, properties={})
+        # If the project is not in the mlsync_cloud_state, the create an empty state
+        if project_name not in self.mlsync_cloud_state:
+            self.mlsync_cloud_state[project_name] = {"project_id": project_id, "report": {}}
+        # Make project_id a string
+        project_id = str(project_id)
+
         # Create new set of reports
         if command == "new":
-            # Create a project
-            project_id = self.mlsync_cloud_api.createProject(project_name)
-            self.mlsync_cloud_state[project_name] = {"project_id": project_id, "experiments": {}}
 
             # Create new tables for all the experiments
             for experiment_name, experiment in report.items():
@@ -56,80 +90,102 @@ class MLSyncCloudSync:
                     project_id=project_id, experiment_uid=experiment["id"], name=experiment["name"], properties={}
                 )
                 # Add to the state
-                self.mlsync_cloud_state[project_name][experiment_name] = {
+                self.mlsync_cloud_state[project_name]['report'][experiment_name] = {
                     "experiment_db_id": database_id,
                     "runs": {},
                 }
                 # Create rows for each run
                 for run_uid, run in experiment["runs"].items():
-                    run_db_id = self.mlsync_cloud_api.createRun(project_id=project_id, experiment_id=database_id, run_uid=run_uid, properties=run)
+                    run_db_id = self.mlsync_cloud_api.createRun(
+                        project_id=project_id, experiment_id=database_id, run_id=run_uid, metrics=run
+                    )
                     # Add to the state
-                    self.mlsync_cloud_state[experiment_name]["runs"][run_uid] = {"run_db_id": run_db_id}
+                    self.mlsync_cloud_state[project_name]['report'][experiment_name]["runs"][run_uid] = {
+                        "run_db_id": run_db_id
+                    }
+
         # Create specific set of experiments and runs
         elif command == "create":
             assert diff_report is not None, "diff_report is required for create command"
             # Create tables for all experiments in the diff
             for experiment_name in diff_report["new"]:
+                # Extract experiment from report
+                experiment = report[experiment_name]
                 # Check if the experiment is empty
-                if not report[experiment_name]["properties"]:
+                if not experiment["runs"]:
                     continue
-                # Create new table
-                database_id = self.mlsync_cloud_api.createDatabase(
-                    experiment_name, report[experiment_name]["properties"], self.root_page_id
+                # Create new experiment
+                database_id = self.mlsync_cloud_api.createExperiment(
+                    project_id=project_id, experiment_uid=experiment["id"], name=experiment["name"], properties={}
                 )
-                # Add to notion state
-                self.mlsync_cloud_state[experiment_name] = {
-                    "database_id": database_id,
-                    "pages": {},
+                # Add to the state
+                self.mlsync_cloud_state[project_name]['experiments'][experiment_name] = {
+                    "experiment_db_id": database_id,
+                    "runs": {},
                 }
                 # Create rows for each run
-                for run_uid, run in report[experiment_name]["rows"].items():
-                    page_id = self.mlsync_cloud_api.addPageToDatabase(database_id, run)["id"]
-                    # Add to notion state
-                    self.mlsync_cloud_state[experiment_name]["pages"][run_uid] = {"page_id": page_id}
+                for run_uid, run in experiment["runs"].items():
+                    run_db_id = self.mlsync_cloud_api.createRun(
+                        project_id=str(project_id), experiment_id=database_id, run_id=run_uid, metrics=run
+                    )
+                    # Add to the state
+                    self.mlsync_cloud_state[project_name]['experiments'][experiment_name]["runs"][run_uid] = {
+                        "run_db_id": run_db_id
+                    }
 
         # Update existing set of reports
         elif command == "update":
             # New runs are added to the end of the table
             # TODO Support adding new columns
             assert diff_report is not None, "diff_report is required for update command"
-
             # Update existing tables for all the experiments
             for experiment_name in diff_report["updated"]:
                 # Get existing database id
-                database_id = self.mlsync_cloud_state[experiment_name]["database_id"]
+                experiment_id = self.mlsync_cloud_state[project_name]['experiments'][experiment_name][
+                    "experiment_db_id"
+                ]
                 # Check if any new fields (columns) are added, if so, we need to update the database
-                # First, get the current properties of the database (if there are any)
-                current_database = self.mlsync_cloud_api.readDatabase(database_id)
-                current_properties = (
-                    current_database["results"][0]["properties"] if (current_database["results"]) else {}
-                )
-                # Check if there are new properties
-                new_properties = {
-                    k: v for k, v in report[experiment_name]["properties"].items() if k not in current_properties
-                }
-                if new_properties:
+                # First, get the current properties of the database
+                experiment = self.mlsync_cloud_api.getExperiment(project_id, experiment_id)["metadata"]
+                # Then, get the new properties of the new report
+                # Check if there are any new fields (other than id, name, and runs)
+                new_experiment = {k: v for k, v in report[experiment_name].items() if k not in ["runs", "id", "name"]}
+                if set(new_experiment.keys()) != set(experiment.keys()):
                     # Update the database
-                    self.mlsync_cloud_api.updateDatabase(database_id, new_properties)
+                    self.mlsync_cloud_api.updateExperiment(
+                        project_id=project_id, id=experiment_id, properties=new_experiment
+                    )
+
+                # Now we will update the runs
                 # Add new rows
                 for run_uid in diff_report["updated"][experiment_name]["new"]:
-                    run = report[experiment_name]["rows"][run_uid]
-                    page_id = self.mlsync_cloud_api.addPageToDatabase(database_id, run)["id"]
+                    run = report[experiment_name]["runs"][run_uid]
+                    page_id = self.mlsync_cloud_api.createRun(
+                        project_id=project_id, experiment_id=experiment_id, run_id=run_uid, metrics=run
+                    )
                     # Add to notion state
-                    self.mlsync_cloud_state[experiment_name]["pages"][run_uid] = {"page_id": page_id}
+                    self.mlsync_cloud_state[project_name]['experiments'][experiment_name]["runs"][run_uid] = {
+                        "run_db_id": page_id
+                    }
                 # Delete old rows
                 for run_uid in diff_report["updated"][experiment_name]["deleted"]:
-                    page_id = self.mlsync_cloud_state[experiment_name]["pages"][run_uid]["page_id"]
+                    page_id = self.mlsync_cloud_state[project_name]['experiments'][experiment_name]["runs"][run_uid][
+                        "run_db_id"
+                    ]
                     # Delete from notion state
-                    del self.mlsync_cloud_state[experiment_name]["pages"][run_uid]
+                    del self.mlsync_cloud_state[project_name]['experiments'][experiment_name]["runs"][run_uid]
                     # Delete from notion
-                    self.mlsync_cloud_api.deletePageFromDatabase(database_id, page_id, properties={})
+                    self.mlsync_cloud_api.deleteRun(project_id, experiment_id, page_id)
                 # Update existing rows
                 for run_uid in diff_report["updated"][experiment_name]["updated"]:
-                    run = report[experiment_name]["rows"][run_uid]
-                    page_id = self.mlsync_cloud_state[experiment_name]["pages"][run_uid]["page_id"]
+                    run = report[experiment_name]["runs"][run_uid]
+                    page_id = self.mlsync_cloud_state[project_name]['experiments'][experiment_name]["runs"][run_uid][
+                        "run_db_id"
+                    ]
                     # Update notion
-                    self.mlsync_cloud_api.updatePageInDatabase(database_id, page_id, properties=run)
+                    self.mlsync_cloud_api.updateRun(
+                        project_id=project_id, experiment_id=experiment_id, id=page_id, run_id=run_uid, metrics=run
+                    )
 
         # Delete existing set of reports
         elif command == "delete":
@@ -137,12 +193,14 @@ class MLSyncCloudSync:
             # Delete existing tables for all the experiments
             for experiment_name in diff_report["deleted"]:
                 # Get existing database id
-                database_id = self.mlsync_cloud_state[experiment_name]["database_id"]
+                database_id = self.mlsync_cloud_state[project_name]['experiments'][experiment_name]["database_id"]
                 # If there are any rows, delete all rows
                 for run_uid in diff_report["deleted"][experiment_name]["deleted"]:
-                    page_id = self.mlsync_cloud_state[experiment_name]["pages"][run_uid]["page_id"]
+                    page_id = self.mlsync_cloud_state[project_name]['experiments'][experiment_name]["pages"][run_uid][
+                        "page_id"
+                    ]
                     # Delete from notion state
-                    del self.mlsync_cloud_state[experiment_name]["pages"][run_uid]
+                    del self.mlsync_cloud_state[project_name]['experiments'][experiment_name]["pages"][run_uid]
                     # Delete from notion
                     self.mlsync_cloud_api.deletePageFromDatabase(database_id, page_id, properties=None)
                 # Delete database

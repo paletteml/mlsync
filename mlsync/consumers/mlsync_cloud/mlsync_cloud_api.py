@@ -10,7 +10,7 @@ class MLSyncCloudAPI:
 
     def __init__(self, token, url):
         """Initialize the Notion API."""
-        self.token = token
+        self.token = str(token)
         self.url = url
 
     def getProjects(self):
@@ -20,8 +20,28 @@ class MLSyncCloudAPI:
             self.url + "/api/v1/projects",
             headers={"Authorization": "Token " + self.token}
         )
+        # check if HTTP response is failed
+        if response.status_code == 400:
+            raise Exception(f"Could not get projects since {response.text}")
         # Return the response
         return response.json()
+
+    def findProject(self, name):
+        """Find a project by name.
+        
+        Args:
+            name (str): The name of the project.
+        """
+        # get all the projects
+        projects = self.getProjects()
+        # loop through all the projects
+        for project in projects:
+            # check if the name of the project is the same as the name provided
+            if project["name"] == name:
+                # return the project id
+                return project["id"]
+        # if no project is found, return None
+        return None
 
     def getProject(self, project_id):
         """Get a project.
@@ -32,7 +52,7 @@ class MLSyncCloudAPI:
         """
         # Make a get request to MLSyncCloud API URL with the token as a header
         response = requests.get(
-            self.url + "/api/v1/projects/" + project_id,
+            self.url + "/api/v1/projects/" + str(project_id),
             headers={"Authorization": "Token " + self.token}
         )
         # check if HTTP response is failed
@@ -58,7 +78,7 @@ class MLSyncCloudAPI:
         )
         # check if HTTP response is failed
         if response.status_code == 400:
-            raise Exception(f"Could not get project since {response.text}")
+            raise Exception(f"Could not create project since {response.text}")
         # return the response
         return response.json()["id"]
 
@@ -72,7 +92,7 @@ class MLSyncCloudAPI:
         """
         # make a put request to the MLSyncCloud API URL with the token as a header
         response = requests.put(
-            self.url + "/api/v1/projects/" + project_id + "/",
+            self.url + "/api/v1/projects/" + str(project_id) + "/",
             headers={"Authorization": "Token " + self.token},
             json={"name": name, "metadata": properties}
         )
@@ -90,7 +110,7 @@ class MLSyncCloudAPI:
         """
         # make a delete request to the MLSyncCloud API URL with the token as a header
         response = requests.delete(
-            self.url + "/api/v1/projects/" + project_id + "/",
+            self.url + "/api/v1/projects/" + str(project_id) + "/",
             headers={"Authorization": "Token " + self.token}
         )
         # check if HTTP response is failed
@@ -107,7 +127,7 @@ class MLSyncCloudAPI:
         """
         # make a get request to the MLSyncCloud API URL with the token as a header
         response = requests.get(
-            self.url + "/api/v1/projects/" + project_id + "/experiments",
+            self.url + "/api/v1/projects/" + str(project_id) + "/experiments",
             headers={"Authorization": "Token " + self.token}
         )
         # check if HTTP response is failed
@@ -125,7 +145,7 @@ class MLSyncCloudAPI:
         """
         # make a get request to the MLSyncCloud API URL with the token as a header
         response = requests.get(
-            self.url + "/api/v1/projects/" + project_id + "/" + experiment_id,
+            self.url + "/api/v1/projects/" + str(project_id) + "/" + str(experiment_id),
             headers={"Authorization": "Token " + self.token}
         )
         # check if HTTP response is failed
@@ -147,7 +167,7 @@ class MLSyncCloudAPI:
         """
         # make a put request to the MLSyncCloud API URL with the token as a header
         response = requests.post(
-            self.url + "/api/v1/projects/" + project_id + "/experiments/",
+            self.url + "/api/v1/projects/" + str(project_id) + "/experiments/",
             headers={"Authorization": "Token " + self.token},
             json={"name": name, 'experiment_id':experiment_uid, "metadata": properties}
         )
@@ -168,7 +188,7 @@ class MLSyncCloudAPI:
         """
         # make a put request to the MLSyncCloud API URL with the token as a header
         response = requests.put(
-            self.url + "/api/v1/projects/" + project_id + "/" + id + "/",
+            self.url + "/api/v1/projects/" + str(project_id) + "/" + str(id) + "/",
             headers={"Authorization": "Token " + self.token},
             # add kwargs
             json={**kwargs}
@@ -188,7 +208,7 @@ class MLSyncCloudAPI:
         """
         # make a delete request to the MLSyncCloud API URL with the token as a header
         response = requests.delete(
-            self.url + "/api/v1/projects/" + project_id + "/" + id + "/",
+            self.url + "/api/v1/projects/" + str(project_id) + "/" + str(id) + "/",
             headers={"Authorization": "Token " + self.token}
         )
         # check if HTTP response is failed
@@ -206,7 +226,7 @@ class MLSyncCloudAPI:
         """
         # make a get request to the MLSyncCloud API URL with the token as a header
         response = requests.get(
-            self.url + "/api/v1/projects/" + project_id + "/" + experiment_id + "/runs",
+            self.url + "/api/v1/projects/" + str(project_id) + "/" + str(experiment_id) + "/runs",
             headers={"Authorization": "Token " + self.token}
         )
         # check if HTTP response is failed
@@ -225,7 +245,7 @@ class MLSyncCloudAPI:
         """
         # make a get request to the MLSyncCloud API URL with the token as a header
         response = requests.get(
-            self.url + "/api/v1/projects/" + project_id + "/" + experiment_id + "/" + id,
+            self.url + "/api/v1/projects/" + str(project_id) + "/" + str(experiment_id) + "/" + str(id),
             headers={"Authorization": "Token " + self.token}
         )
         # check if HTTP response is failed
@@ -247,7 +267,7 @@ class MLSyncCloudAPI:
         """
         # make a put request to the MLSyncCloud API URL with the token as a header
         response = requests.post(
-            self.url + "/api/v1/projects/" + project_id + "/" + experiment_id + "/runs/",
+            self.url + "/api/v1/projects/" + str(project_id) + "/" + str(experiment_id) + "/runs/",
             headers={"Authorization": "Token " + self.token},
             json=kwargs
         )
@@ -269,7 +289,7 @@ class MLSyncCloudAPI:
         """
         # make a put request to the MLSyncCloud API URL with the token as a header
         response = requests.put(
-            self.url + "/api/v1/projects/" + project_id + "/" + experiment_id + "/" + id + "/",
+            self.url + "/api/v1/projects/" + str(project_id) + "/" + str(experiment_id) + "/" + str(id) + "/",
             headers={"Authorization": "Token " + self.token},
             json=kwargs
         )
@@ -289,7 +309,7 @@ class MLSyncCloudAPI:
         """
         # make a delete request to the MLSyncCloud API URL with the token as a header
         response = requests.delete(
-            self.url + "/api/v1/projects/" + project_id + "/" + experiment_id + "/" + id + "/",
+            self.url + "/api/v1/projects/" + str(project_id) + "/" + str(experiment_id) + "/" + str(id) + "/",
             headers={"Authorization": "Token " + self.token}
         )
         # check if HTTP response is failed
@@ -299,14 +319,15 @@ class MLSyncCloudAPI:
         return response.json()
 
 if __name__ == "__main__":
-    api = MLSyncCloudAPI(url="http://127.0.0.1:8000/mlsync", token="dd0a4112d326cee9a1b199a7d06b65e1be346072")
-    # print(api.createProject('new-new-new-1', {'test': 'test'}))
+    api = MLSyncCloudAPI(url="http://127.0.0.1:8000/mlsync", token="55ce30e4bf1df9ff4ececa0916420545fb6368cb")
+    # print(api.createProject('new1-new-new-1', {'test': 'test'}))
     # print(api.getProjects())
     # print(api.getProject('5'))
     # print(api.updateProject('5', 'changed-name', {'test': 'test'}))
     # print(api.deleteProject('5'))
     # print(api.createExperiment('7', '1233', 'experiment2', {'test': 'test'}))
-    print(api.getExperiments(project_id='7'))
-    print(api.getExperiment('7', '9'))
-    print(api.updateExperiment('7', '9', name='experiment3', metadata={'test': 'test'}, experiment_id='1233'))
-    print(api.deleteExperiment('7', '9'))
+    # print(api.getExperiments(project_id='7'))
+    # print(api.getExperiment('7', '9'))
+    # print(api.updateExperiment('7', '9', name='experiment3', metadata={'test': 'test'}, experiment_id='1233'))
+    # print(api.deleteExperiment('7', '9'))
+    print(api.getRuns(project_id="7", experiment_id="12"))
