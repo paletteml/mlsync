@@ -1,5 +1,6 @@
 from mlsync.producers.mlflow.mlflow_api import MLFlowAPI
 from mlsync.producers.mlflow.mlflow_formatter import MLFlowFormatter
+from mlsync.engine.diff import diff
 from mlsync.utils.utils import yaml_loader
 
 
@@ -38,6 +39,9 @@ class MLFlowSync:
 
         return report
 
+    def diff(self, report_a, report_b):
+        """Generate the diff report between two reports"""
+        return diff(report_a, report_b)
 
 if __name__ == "__main__":
     import os

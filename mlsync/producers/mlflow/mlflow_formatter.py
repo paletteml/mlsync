@@ -16,6 +16,21 @@ class MLFlowFormatter:
         self.report_format = self.augment_report_format(report_format)
         self.add_alias_table()
 
+    def find_kpi(self, elements):
+        """Find the KPI from the elements
+
+        Args:
+            elements (dict): The elements from MLFlow
+        """
+        # Find the KPI from the elements
+        kpi, kpi_direction = None, None
+        for element in elements:
+            if element["key"] == "kpi":
+                kpi = element["value"]
+            elif element["key"] == "kpi_direction":
+                kpi_direction = element["value"]
+        return kpi, kpi_direction
+
     def augment_report_format(self, report_format):
         """This function will augment over the user provided report format.
 
@@ -77,9 +92,11 @@ class MLFlowFormatter:
             # Create Runs for each experiment
             experiment["runs"] = {}
             # Step 3: Generate the report for each run
-            reports_run = self.generate_run(runs[experiment_id], detailed_metrics)
+            reports_run, kpi, kpi_direction = self.generate_run(runs[experiment_id], detailed_metrics)
             # Add the runs to the experiment
             experiment["runs"] = reports_run
+            # Add KPIs
+            experiment["kpi"], experiment["kpi_direction"] = kpi, kpi_direction
 
         # Step 4: Generate the report
         # Remove all empty experiments from the report (experiment with no runs)
@@ -143,6 +160,8 @@ class MLFlowFormatter:
         elements = run_report_format["values"]
         policies = self.report_format["policies"]
 
+        kpi, kpi_direction = None, None
+
         # Go through the run report
         for run_idx, report_run in enumerate(runs):
 
@@ -183,10 +202,11 @@ class MLFlowFormatter:
                             metric_data = self.generate_run_metrics(metric_data)
                         else:
                             metric_data = None
+
                         # Check if the metric is part of elements
                         if key in elements:
-                            alias = elements[key]['alias']
-                            val_type = elements[key]['type']
+                            alias = elements[key]['alias'] if('alias' in elements[key]) else key
+                            val_type = elements[key]['type'] if('type' in elements[key]) else str(type(value)).split("'")[-2]
                             # Try and convert the value to the correct type
                             updated_value = typify(value, val_type)
                             report[run_id][alias] = {
@@ -200,7 +220,8 @@ class MLFlowFormatter:
                                 report[run_id][key] = {
                                     "key": key,
                                     "value": value,
-                                    "type": str(type(value)),
+                                    "type": str(type(value)).split("'")[-2],
+                                    "tag": element_type,
                                     "data": metric_data,
                                 }
 
@@ -227,7 +248,12 @@ class MLFlowFormatter:
                     "value": str(run_id),
                     "data": None,
                 }
-        return report
+
+            # Find the KPI
+            if (run_idx == 0) or (kpi is None) or (kpi_direction is None):
+                kpi, kpi_direction = self.find_kpi(report_run["data"]["tags"])
+
+        return report, kpi, kpi_direction
 
     def generate_run_metrics(self, report_metric):
         """Generate the run metrics

@@ -1,0 +1,298 @@
+elements:
+    # -- Information about the run -- #
+    user_id:
+        alias: User
+        type: string
+        tag: info
+        description: The user ID of the user who ran the experiment.
+
+    status:
+        alias: Status
+        type: select
+        tag: info
+        description: The status of the experiment.
+        options:
+            - FINISHED
+            - RUNNING
+            - FAILED
+            - KILLED
+            - UNFINISHED
+            - SCHEDULED
+
+    start_time:
+        alias: Start Time
+        type: timestamp
+        tag: info
+        description: The time the experiment was started.
+
+    end_time:
+        alias: End Time
+        type: timestamp
+        tag: info
+        description: The time the experiment was ended.
+
+    # -- All the metrics logged during the run -- #
+    # Note: this is only final metrics
+    loss:
+        alias: loss
+        type: float
+        tag: metrics
+        description: The training loss of the model.
+
+    # -- All the params used -- #
+    dropout:
+        alias: Dropout Probability
+        type: float
+        tag: params
+        description: The dropout probability of the model.
+
+    n_layers:
+        alias: Number of Layers
+        type: integer
+        tag: params
+        description: The number of layers of the model.
+
+    adafactor:
+        alias: Adafactor
+        type: boolean
+        tag: params
+        description: Whether to use Adafactor for the model.
+        default: false
+    
+    adam_beta1:
+        alias: Adam Beta1
+        type: float
+        tag: params
+        description: The beta1 parameter of the Adam optimizer.
+        
+    adam_beta2:
+        alias: Adam Beta2
+        type: float
+        tag: params
+        description: The beta2 parameter of the Adam optimizer.
+
+    qa_dropout:
+        alias: QA Dropout Probability
+        type: float
+        tag: params
+        description: The dropout probability of the QA model.
+
+    vocab_size:
+        alias: Vocab Size
+        type: integer
+        tag: params
+        description: The size of the vocabulary of the model.
+
+    min_legth:
+        alias: Minimum Length
+        type: integer
+        tag: params
+        description: The minimum length of the input sentences.
+
+    max_length:
+        alias: Maximum Length
+        type: integer
+        tag: params
+        description: The maximum length of the input sentences.
+
+    hidden_dim:
+        alias: Hidden Dimension
+        type: integer
+        tag: params
+        description: The hidden dimension of the model.
+
+    temperature:
+        alias: Temperature
+        type: float
+        tag: params
+        description: The temperature of the model.
+        default: 1.0
+
+    adam_epsilon:
+        alias: Adam Epsilon
+        type: float
+        tag: params
+        description: The epsilon parameter of the Adam optimizer.
+
+    weight_decay:
+        alias: Weight Decay
+        type: float
+        tag: params
+        description: The weight decay of the model.
+        
+    learning_rate:
+        alias: Learning Rate
+        type: float
+        tag: params
+        description: The learning rate of the model.
+
+    max_grad_norm:
+        alias: Max Gradient Norm
+        type: float
+        tag: params
+        description: The maximum gradient norm of the model.
+
+    output_scores:
+        alias: Output Scores
+        type: boolean
+        tag: params
+        description: Whether to output the scores of the model.
+
+    early_stopping:
+        alias: Early Stopping
+        type: boolean
+        tag: params
+        description: Whether to use early stopping.
+
+    length_penalty:
+        alias: Length Penalty
+        type: float
+        tag: params
+        description: The length penalty of the model.
+    
+    group_by_length:
+        alias: Group by Length
+        type: boolean
+        tag: params
+        description: Whether to group the data by length.
+    
+    num_beam_groups:
+        alias: Number of Beam Groups
+        type: integer
+        tag: params
+        description: The number of beam groups of the model.
+
+    num_train_epochs:
+        alias: Number of Training Epochs
+        type: integer
+        tag: params
+        description: The number of training epochs of the model.
+
+    attention_dropout:
+        alias: Attention Dropout
+        type: float
+        tag: params
+        description: The attention dropout of the model.
+
+    diversity_penalty:
+        alias: Diversity Penalty
+        type: float
+        tag: params
+        description: The diversity penalty of the model.
+
+    initializer_range:
+        alias: Initializer Range
+        type: float
+        tag: params
+        description: The initializer range of the model.
+
+    lr_scheduler_type:
+        alias: Learning Rate Scheduler Type
+        type: string
+        tag: params
+        description: The type of the learning rate scheduler.
+
+    output_attentions:
+        alias: Output Attentions
+        type: boolean
+        tag: params
+        description: Whether to output the attentions of the model.
+
+    repetition_penalty:
+        alias: Repetition Penalty
+        type: float
+        tag: params
+        description: The repetition penalty of the model.
+
+    add_cross_attention:
+        alias: Add Cross Attention
+        type: boolean
+        tag: params
+        description: Whether to add cross attention.
+
+    seq_classif_dropout:
+        alias: Sequence Classification Dropout
+        type: float
+        tag: params
+        description: The dropout of the sequence classification layer of the model.
+
+    gradient_accumulation_steps:
+        alias: Gradient Accumulation Steps
+        type: integer
+        tag: params
+        description: The number of steps to accumulate the gradients.
+        
+    per_device_train_batch_size:
+        alias: Per Device Train Batch Size
+        type: integer
+        tag: params
+        description: The per device train batch size of the model.
+
+    per_device_eval_batch_size:
+        alias: Per Device Eval Batch Size
+        type: integer
+        tag: params
+        description: The per device eval batch size of the model.
+
+    max_position_embeddings:
+        alias: Max Position Embeddings
+        type: integer
+        tag: params
+        description: The max position embeddings of the model.
+
+    transformers_version:
+        alias: Transformers Version
+        type: string
+        tag: params
+        description: The version of the transformers library.
+
+    num_return_sequences:
+        alias: Number of Return Sequences
+        type: integer
+        tag: params
+        description: The number of return sequences of the model.
+
+    tie_encoder_decoder:
+        alias: Tie Encoder Decoder
+        type: boolean
+        tag: params
+        description: Whether to tie the encoder and decoder of the model.
+
+    # -- Tags about the run -- #
+    mlflow.runName:
+        alias: Name
+        type: string
+        tag: tags
+        description: The name of the run.
+
+    mlflow.note.content:
+        alias: Description
+        type: string
+        tag: tags
+        description: The description of the run.
+
+# Declare policies
+policies:
+    # policy if an element not listed above is found (ignore/add)
+    unmatched_policy:
+        # Set this for each tag
+        info: ignore
+        metrics: add
+        params: ignore
+        tags: ignore
+
+    # Policy if a listed element is not found (ignore/error)
+    notfound_policy:
+        # Set this for each tag
+        info: error
+        metrics: error
+        params: error
+        tags: error
+
+# Order in which the report will be populated
+order:
+    # Use the alias for each element
+    - Name
+    - User
+    - Start Time
+    - End Time

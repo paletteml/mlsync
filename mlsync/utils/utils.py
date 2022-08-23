@@ -77,8 +77,8 @@ def typify(value, val_type):
             value = int(value)
         elif val_type == "float":
             value = float(value)
-        elif val_type == "bool":
-            value = bool(value)
+        elif val_type == "bool" or val_type == "boolean":
+            value = str(value)
         elif val_type == "str" or val_type == "string":
             value = str(value)
         elif val_type == "select":

@@ -1,0 +1,4 @@
+datasets==2.4.0
+mlsync==0.1.4
+torch==1.12.1
+transformers==4.21.1

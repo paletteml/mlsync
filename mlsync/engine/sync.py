@@ -1,10 +1,10 @@
 import sys
 import os
 import time
+from mlsync.producers.source.source_sync import SourceSync
 from mlsync.producers.mlflow.mlflow_sync import MLFlowSync
 from mlsync.consumers.notion.notion_sync import NotionSync
 from mlsync.consumers.mlsync_cloud.mlsync_cloud_sync import MLSyncCloudSync
-from mlsync.engine.diff import diff
 
 
 class Sync:
@@ -40,7 +40,9 @@ class Sync:
         self.format = report_format
 
         # Pick the producer and instantiate the API
-        if producer == "mlflow":
+        if producer == "source":
+            self.producer_sync = SourceSync(kwargs["experiment"], kwargs["run"], self.format)
+        elif producer == "mlflow":
             # Make sure mlflow_uri is provided
             if "mlflow_uri" not in kwargs:
                 raise ValueError("mlflow_uri is required for mlflow producer")
@@ -99,9 +101,9 @@ class Sync:
             new_report = self.producer_sync.pull()
 
             # Find out if there is any change
-            diff_report = diff(report, new_report)
+            diff_report = self.producer_sync.diff(report, new_report)
 
-            # Update Notion page if there is any change
+            # Update Consumer if there is any change
             if diff_report:
                 # Update the report
                 report = new_report

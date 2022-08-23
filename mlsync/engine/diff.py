@@ -1,4 +1,4 @@
-def diff(report_old, report_new):
+def diff(report_old, report_new, no_delete=False):
     """Generate the diff report
 
     MLSync reports can change the following ways:
@@ -23,8 +23,11 @@ def diff(report_old, report_new):
 
             # If the experiment is not in the new report, then it is deleted
             if experiment_name not in report_new:
-                # Add all the runs to the deleted list
-                diff_experiment_report["deleted"][experiment_name] = {"deleted": list(report_old[experiment_name]["runs"].keys())}
+                if no_delete:
+                    continue
+                else:
+                    # Add all the runs to the deleted list
+                    diff_experiment_report["deleted"][experiment_name] = {"deleted": list(report_old[experiment_name]["runs"].keys())}
 
             # If the experiment is in the new report, then we will compare the runs
             else:
@@ -43,7 +46,10 @@ def diff(report_old, report_new):
                     for run_id in experiment_old["runs"]:
                         # If the run is not in the new report, then it is deleted
                         if run_id not in experiment_new["runs"]:
-                            diff_run_report["deleted"].append(run_id)
+                            if no_delete:
+                                continue
+                            else:
+                                diff_run_report["deleted"].append(run_id)
                         # Status of the run must have changed
                         elif experiment_new["runs"][run_id] != experiment_old["runs"][run_id]:
                             # Updated rows

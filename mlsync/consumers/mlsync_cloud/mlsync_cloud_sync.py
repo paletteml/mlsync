@@ -68,6 +68,9 @@ class MLSyncCloudSync:
             command (str): The command to execute, It can be "new", "create", "update" or "delete"
             diff_report (dict): The diff report describing the changes to be made.
         """
+        # We will first push the report format to Cloud
+        self.mlsync_cloud_api.pushFormat(self.format)
+
         # Find an existing project or create a new one
         project_id = self.mlsync_cloud_api.findProject(project_name)
         if project_id is None:
@@ -87,7 +90,7 @@ class MLSyncCloudSync:
                 if not experiment["runs"]:
                     continue
                 database_id = self.mlsync_cloud_api.createExperiment(
-                    project_id=project_id, experiment_uid=experiment["id"], name=experiment["name"], properties={}
+                    project_id=project_id, experiment_uid=experiment["id"], name=experiment["name"], metadata={}
                 )
                 # Add to the state
                 self.mlsync_cloud_state[project_name]['report'][experiment_name] = {
@@ -116,7 +119,7 @@ class MLSyncCloudSync:
                     continue
                 # Create new experiment
                 database_id = self.mlsync_cloud_api.createExperiment(
-                    project_id=project_id, experiment_uid=experiment["id"], name=experiment["name"], properties={}
+                    project_id=project_id, experiment_uid=experiment["id"], name=experiment["name"], metadata={}
                 )
                 # Add to the state
                 self.mlsync_cloud_state[project_name]['experiments'][experiment_name] = {
@@ -148,12 +151,14 @@ class MLSyncCloudSync:
                 # First, get the current properties of the database
                 experiment = self.mlsync_cloud_api.getExperiment(project_id, experiment_id)["metadata"]
                 # Then, get the new properties of the new report
-                # Check if there are any new fields (other than id, name, and runs)
+                # All fields (other than id, name, and runs)
                 new_experiment = {k: v for k, v in report[experiment_name].items() if k not in ["runs", "id", "name"]}
-                if set(new_experiment.keys()) != set(experiment.keys()):
+                old_experiment = {k: v for k, v in experiment.items() if k not in ["runs", "id", "name"]}
+                # Check if they match or not
+                if new_experiment != old_experiment:
                     # Update the database
                     self.mlsync_cloud_api.updateExperiment(
-                        project_id=project_id, id=experiment_id, properties=new_experiment
+                        project_id=project_id, id=experiment_id, metadata=new_experiment
                     )
 
                 # Now we will update the runs
@@ -193,18 +198,9 @@ class MLSyncCloudSync:
             # Delete existing tables for all the experiments
             for experiment_name in diff_report["deleted"]:
                 # Get existing database id
-                database_id = self.mlsync_cloud_state[project_name]['experiments'][experiment_name]["database_id"]
-                # If there are any rows, delete all rows
-                for run_uid in diff_report["deleted"][experiment_name]["deleted"]:
-                    page_id = self.mlsync_cloud_state[project_name]['experiments'][experiment_name]["pages"][run_uid][
-                        "page_id"
-                    ]
-                    # Delete from notion state
-                    del self.mlsync_cloud_state[project_name]['experiments'][experiment_name]["pages"][run_uid]
-                    # Delete from notion
-                    self.mlsync_cloud_api.deletePageFromDatabase(database_id, page_id, properties=None)
-                # Delete database
-                # NOTE: Notion does not support removing the database. Hence only removing entries
+                database_id = self.mlsync_cloud_state[project_name]['experiments'][experiment_name]["experiment_db_id"]
+                # Delete experiment from cloud
+                self.mlsync_cloud_api.deleteExperiment(project_id, database_id)
 
         else:
             sys.exit("Command not recognized.")

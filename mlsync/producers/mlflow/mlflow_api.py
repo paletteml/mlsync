@@ -134,7 +134,6 @@ if __name__ == "__main__":
     mlflowRoot = "http://127.0.0.1:5000/api"
     mlflowAPI = MLFlowAPI(mlflowRoot)
     experiments = mlflowAPI.getExperiments()
-    experiments = [mlflowAPI.getExperiment(experiment["experiment_id"]) for experiment in experiments]
+    runs = {experiment["experiment_id"]: mlflowAPI.getExperimentRuns(experiment["experiment_id"]) for experiment in experiments}
     print(experiments)
-    runs = mlflowAPI.getExperimentRuns(experiment_id=experiments[1]["experiment_id"])
     print(runs)
